@@ -1,5 +1,5 @@
-# Use a 'large' base container to show-case how to load pytorch and use the GPU (when enabled) (macOS)
-# FROM --platform=linux/arm64 pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime AS example-task2-arm64
+# Use a 'large' base container to show-case how to load pytorch (macOS)
+# FROM --platform=linux/arm64 pytorch/pytorch AS example-task2-arm64
 
 # Use a 'large' base container to show-case how to load pytorch and use the GPU (when enabled) (Linux and WSL)
 FROM --platform=linux/amd64 pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime AS example-task2-amd64
