@@ -51,7 +51,7 @@ def run():
 
     # Load HECKTOR model and make prediction
     try:
-        from resources.hecktor_inference import load_model, predict_survival
+        from resources.utils import load_model, predict_survival
         model = load_model(RESOURCE_PATH / "best_model.pth")
         output_recurrence_free_survival = predict_survival(
             model=model,
