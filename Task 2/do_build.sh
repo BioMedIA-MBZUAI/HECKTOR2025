@@ -12,7 +12,11 @@ if [ "$#" -eq 1 ]; then
     DOCKER_IMAGE_TAG="$1"
 fi
 
-# Note: the build-arg is JUST for the workshop
+# Build the container
 docker build "$SCRIPT_DIR" \
-  --platform=linux/arm64/v8 \
   --tag "$DOCKER_IMAGE_TAG" 2>&1
+
+# Build the Container when developing with macOS
+# docker build "$SCRIPT_DIR" \
+#   --platform=linux/arm64/v8 \
+#   --tag "$DOCKER_IMAGE_TAG" 2>&1

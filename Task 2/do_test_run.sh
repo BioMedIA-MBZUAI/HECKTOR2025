@@ -54,15 +54,15 @@ echo "=+= Doing a forward pass"
 #   is added because on Grand Challenge this directory cannot be used to store permanent files
 docker volume create "$DOCKER_NOOP_VOLUME" > /dev/null
 docker run --rm \
-    --platform=linux/arm64/v8 \
     --network none \
+    --gpus all \
     --volume "$INPUT_DIR":/input:ro \
     --volume "$OUTPUT_DIR":/output \
     --volume "$DOCKER_NOOP_VOLUME":/tmp \
     $DOCKER_IMAGE_TAG
 docker volume rm "$DOCKER_NOOP_VOLUME" > /dev/null
 
-    # --gpus all \
+
 
 
 # Ensure permissions are set correctly on the output
