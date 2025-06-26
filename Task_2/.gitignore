@@ -1,4 +1,4 @@
-test/input/*/*
+test/input/images/*/*.mha
 resources/clinical_preprocessors.pkl
 resources/feature_extractor.pt
 resources/icare_model.pkl
