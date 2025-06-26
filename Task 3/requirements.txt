@@ -1,0 +1,6 @@
+SimpleITK
+pandas
+numpy
+monai
+joblib
+scikit-learn
