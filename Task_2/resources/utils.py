@@ -473,26 +473,3 @@ def check_resource_files(resource_path):
         raise FileNotFoundError(f"Missing required resource files: {missing_files}")
     
     print("All required resource files found.")
-
-def prepare_resources_from_training(training_fold_prefix, training_preprocessors_path, output_resource_path):
-    """
-    Helper function to prepare resource files from training outputs.
-    
-    Args:
-        training_fold_prefix: Path prefix from training (e.g., "cv_logs/fold0_system")
-        training_preprocessors_path: Path to clinical preprocessors from training
-        output_resource_path: Where to copy files for container deployment
-    """
-    import shutil
-    from pathlib import Path
-    
-    output_path = Path(output_resource_path)
-    output_path.mkdir(exist_ok=True)
-    
-    # Copy model files
-    shutil.copy(f"{training_fold_prefix}_feature_extractor.pt", output_path / "feature_extractor.pt")
-    shutil.copy(f"{training_fold_prefix}_icare_model.pkl", output_path / "icare_model.pkl")
-    shutil.copy(f"{training_fold_prefix}_config.json", output_path / "model_config.json")
-    shutil.copy(training_preprocessors_path, output_path / "clinical_preprocessors.pkl")
-    
-    print(f"Resource files prepared in {output_resource_path}")
