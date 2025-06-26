@@ -32,9 +32,9 @@ KNN_NEIGHBORS = 5
 CONCORDANCE_EPSILON = 1e-8
 
 # Data paths - update these for your environment
-TRAINING_IMAGES_PATH = "/l/users/salma.hassan/Task_2_Resampled"
-EHR_DATA_PATH = "/l/users/salma.hassan/HECKTOR_2025_Training_Task_2.csv"
-FOLDS_PATH = "/l/users/salma.hassan/Prognosis/cv_splits_stratified.json"
+TRAINING_IMAGES_PATH = "./Task_2"
+EHR_DATA_PATH = "./HECKTOR_2025_Training_Task_2.csv"
+FOLDS_PATH = "./cv_splits_stratified.json"
 
 
 # =============================================================================

@@ -1,0 +1,8 @@
+Task_2/resources/clinical_preprocessors.pkl
+Task_2/resources/feature_extractor.pt
+Task_2/resources/icare_model.pkl
+Task_2/resources/model_config.json
+Task_2/test/input/images/ct/e75b2bd8-1fd9-45d9-a263-75e4e5c10265.mha
+Task_2/test/input/images/dosimetry-ct/f2ca92e1-8f8f-4f91-a111-4509b9afe8c5.mha
+Task_2/test/input/images/pet/de965d10-a4d6-40da-b185-af5709339fbc.mha
+Task_2/test/input/images/radiotherapy-planning-dose-map/adfdfa86-21da-4b4d-896c-b8f708fc8034.mha
