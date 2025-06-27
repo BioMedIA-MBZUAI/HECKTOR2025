@@ -39,9 +39,9 @@ Each of these directories is accompanied by a `README.md` file in which we have 
 ## Submitting Docker Container <a name="submitting_docker"></a>
 
 
-Assuming you have a verified Grand-Challenge account and have already registered for the HECKTOR challenge, you need to do two main steps to submit your algorithm to the challenge. First, you need to [upload the algorithm](#uplaod-your-algorithm) docker container to the Grand-Challenge platform. Then, you can make a [submit that algorithm](#submit-your-algorithm) to compete in any leaderboard or phases of the challenge. But before you proceed, make sure that you have read and understood the [participation policies](https://hecktor25.grand-challenge.org/participation-policies/).
+Assuming you have a verified Grand-Challenge account and have already registered for the HECKTOR challenge, you need to do two main steps to submit your algorithm to the challenge. First, you need to [upload the algorithm](#uplaod-your-algorithm) docker container to the Grand-Challenge platform. Then, you can follow the steps to [submit that algorithm](#submit-your-algorithm) to compete in any leaderboard or phases of the challenge. But before you proceed, make sure that you have read and understood the [participation policies](https://hecktor25.grand-challenge.org/participation-policies/).
 
-### 1- Upload your algorithm
+### 1- Upload your algorithm <a name="uplaod-your-algorithm"></a>
 > **IMPORTANT:** It is crucial to know that you have to submit different algorithms for different tasks of the challenge. Even if you are using the same method for all tasks, you have to upload your algorithm again because the Input and Output configurations for each tasks are different.
 
 In order to submit your algorithm, you first have to add it to the Grand-Challenge platform. To do so, you have to follow the following steps: 
@@ -67,7 +67,7 @@ In order to submit your algorithm, you first have to add it to the Grand-Challen
 > **NOTE:** Since you can only create a limited number of algorithms, please make the title of your algorithm meaningful and avoid titles that include the words "test", "debug" etc. In principle you will only need to create 1 algorithm for this phase. Once created, you can upload new container images for it as you improve your code and even switch back to older container images as you see fit.
 
 
-- The next step is to connect the docker container. Now, as before you can use this algorithm for a challenge submission, you have to assign/upload your dockerized algorithm to it. To do so, click on the "Containers" tab from the left menu.
+- After successful creation of an algorithm, you have to connect the docker container. Now, before you can use this algorithm for a challenge submission, you have to assign/upload your dockerized algorithm to it. To do so, click on the "Containers" tab from the left menu.
 
 
 <p align="center">
@@ -91,12 +91,17 @@ In order to submit your algorithm, you first have to add it to the Grand-Challen
 </p> 
 
 
-- Once you have uploaded your docker container, click on the **Save** button given below and your algorithm will be completed and ready to be submitted to the challenge. Remember, the algorithm is only ready to submit when the status badge in front of the upload description changes to <span style="color:green"><b>Active</b></span>.
+- Once you have uploaded your docker container, click on the **Save** button given below and your algorithm will be completed and ready to be submitted to the challenge. Remember, the algorithm is only ready to submit when the status badge in front of the upload description changes to **Active**.
 
 <p align="center">
   <img src="/doc/images/New-Container.png">
 </p> 
 
+## Submit Algorithm to be Added after Having some Discussion as it has some following issues which needs to be discussed.
+
+<p align="center">
+  <img src="/doc/images/Issue-Submission.png">
+</p> 
 
 ### 2- Submit your algorithm <a name="different_phases"></a>
 In the HECKTOR challenge, we have three tasks (`Task 1 - Detection and Segmentation`, `Task 2 - Prognosis`, and `Task 3 - Classification`) and for each task, participants compete in three phases. So here, the task submission is divided into 1+2 phases:
