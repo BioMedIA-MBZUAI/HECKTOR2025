@@ -458,9 +458,7 @@ def main():
 
         #calculate c-index
         #get the event indicator from the input csv file
-        events = pd.read_csv(args.csv)['Relapse']
-
-        c_index = concordance_index(results_df['RiskScore'], events)
+        c_index = concordance_index(results_df['RFS'], -results_df['RiskScore'], results_df['Relapse'])
         print(f"C-index: {c_index}")
         
         # Print summary
