@@ -140,8 +140,9 @@ class ClinicalDataPreprocessor:
             known_classes = list(self.category_encoders[column].classes_)
             value = str(imputation_data[column].iloc[0]).replace('nan', 'Unknown')
             if value not in known_classes:
-                value = known_classes[0]
-            imputation_data[column] = known_classes.index(value)
+                value = -1
+            else:   
+                imputation_data[column] = known_classes.index(value)
         
         # Handle M-stage for imputation
         m_stage_value = str(imputation_data['M-stage'].iloc[0]).replace('nan', 'Unknown')
