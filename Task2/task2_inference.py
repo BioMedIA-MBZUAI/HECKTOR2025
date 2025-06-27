@@ -31,6 +31,7 @@ from monai.transforms import (
 from monai.networks.nets import resnet18
 import torch.nn as nn
 from tqdm import tqdm
+from lifelines.utils import concordance_index
 
 # =============================================================================
 # Model Architecture
@@ -144,8 +145,9 @@ class ClinicalDataPreprocessor:
             known_classes = list(self.category_encoders[column].classes_)
             value = str(imputation_data[column].iloc[0]).replace('nan', 'Unknown')
             if value not in known_classes:
-                value = 'Unknown'
-            imputation_data[column] = known_classes.index(value)
+                value = -1
+            else:
+                imputation_data[column] = known_classes.index(value)
         
         # Handle M-stage for imputation
         m_stage_value = str(imputation_data['M-stage'].iloc[0]).replace('nan', 'Unknown')
@@ -399,6 +401,7 @@ def main():
     parser.add_argument('--output', required=True, help='Output CSV path for predictions')
     parser.add_argument('--batch-size', type=int, default=4, help='Batch size for processing')
     parser.add_argument('--device', choices=['cpu', 'cuda'], help='Device to use (auto-detected if not specified)')
+
     
     args = parser.parse_args()
     
@@ -452,6 +455,13 @@ def main():
         # Save results
         results_df.to_csv(args.output, index=False)
         print(f"Predictions saved to: {args.output}")
+
+        #calculate c-index
+        #get the event indicator from the input csv file
+        events = pd.read_csv(args.csv)['Relapse']
+
+        c_index = concordance_index(results_df['RiskScore'], events)
+        print(f"C-index: {c_index}")
         
         # Print summary
         print(f"\nSummary:")
