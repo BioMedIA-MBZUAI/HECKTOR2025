@@ -10,10 +10,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import StratifiedKFold, train_test_split
-from sklearn.preprocessing import StandardScaler, LabelEncoder, OrdinalEncoder
-from sklearn.impute import KNNImputer
+from sklearn.preprocessing import StandardScaler
 from lifelines.utils import concordance_index
-from lifelines import CoxPHFitter
 from tqdm import tqdm
 from monai.transforms import (
     Compose, LoadImaged, EnsureChannelFirstd, ScaleIntensityd, ToTensord, Resized
@@ -558,73 +556,50 @@ def find_image_path(patient_id, modality, directories):
             return full_path
     raise FileNotFoundError(f"{modality} image for patient {patient_id} not found")
 
-def preprocess_clinical_data(dataframe):
-    """Preprocess clinical features with imputation and encoding."""
 
-    # All clinical features used in the pre-processing
+def preprocess_clinical_data(dataframe):
+    """Preprocess clinical features with one-hot encoding and proper NaN handling."""
+    
+    # All clinical features used in preprocessing
     ALL_CLINICAL_FEATURES = [
         "Age", "Gender", "Tobacco Consumption", "Alcohol Consumption", 
-        "Performance Status", "M-stage"
+        "Performance Status", "M-stage", "Treatment"
     ]
-
-    # Features that need standard categorical encoding (excludes Age=continuous, M-stage=ordinal)
-    LABEL_ENCODED_FEATURES = [
-        "Gender", "Tobacco Consumption", "Alcohol Consumption", "Performance Status"
+    
+    # Categorical features for one-hot encoding (all except Age)
+    CATEGORICAL_FEATURES = [
+        "Gender", "Tobacco Consumption", "Alcohol Consumption", 
+        "Performance Status", "M-stage", "Treatment"
     ]
-
+    
     feature_subset = dataframe[ALL_CLINICAL_FEATURES].copy()
     
-    # Temporary encoding for KNN imputation
-    imputation_data = feature_subset.copy()
-    temporary_encoders = {}
+    # Handle Age (continuous variable)
+    # Fill NaN values with median
+    age_median = feature_subset["Age"].median()
+    feature_subset["Age"] = feature_subset["Age"].fillna(age_median)
     
-    for column in LABEL_ENCODED_FEATURES:
-        encoder = LabelEncoder()
-        imputation_data[column] = encoder.fit_transform(
-            imputation_data[column].astype(str).fillna('Unknown')
-        )
-        temporary_encoders[column] = encoder
-    
-    # Handle M-stage
-    imputation_data['M-stage'] = imputation_data['M-stage'].astype(str).fillna('Unknown')
-    m_stage_temp_encoder = LabelEncoder()
-    imputation_data['M-stage'] = m_stage_temp_encoder.fit_transform(imputation_data['M-stage'])
-    
-    # KNN imputation
-    imputer = KNNImputer(n_neighbors=KNN_NEIGHBORS)
-    imputed_features = imputer.fit_transform(imputation_data)
-    imputed_df = pd.DataFrame(imputed_features, columns=ALL_CLINICAL_FEATURES, index=feature_subset.index)
-    
-    # Final encoding
+    # Standardize Age
     age_scaler = StandardScaler()
-    age_scaler.fit(imputed_df[["Age"]].values)
+    age_scaled = age_scaler.fit_transform(feature_subset[["Age"]])
     
-    category_encoders = {}
-    for column in LABEL_ENCODED_FEATURES:
-        encoder = LabelEncoder()
-        column_values = imputed_df[column].round().astype(int).astype(str)
-        encoder.fit(column_values)
-        category_encoders[column] = encoder
+    # Handle categorical features with one-hot encoding
+    # Fill NaN values with 'Unknown' category for each categorical feature
+    categorical_data = feature_subset[CATEGORICAL_FEATURES].copy()
+    for col in CATEGORICAL_FEATURES:
+        categorical_data[col] = categorical_data[col].fillna('Unknown')
+        # Convert to string to ensure consistent data type
+        categorical_data[col] = categorical_data[col].astype(str)
     
-    # M-stage ordinal encoding
-    m_stage_values = imputed_df[["M-stage"]].round().astype(int).astype(str)
-    m_stage_categories = []
-    for value in m_stage_values["M-stage"]:
-        value_int = int(float(value))
-        if value_int == 0:
-            m_stage_categories.append('M0')
-        elif value_int == 1:
-            m_stage_categories.append('M1')
-        else:
-            m_stage_categories.append('Mx')
-    
-    m_stage_df = pd.DataFrame({'M-stage': m_stage_categories})
-    m_stage_encoder = OrdinalEncoder(
-        categories=[['M0', 'M1', 'Mx']], 
-        handle_unknown='use_encoded_value', 
-        unknown_value=-1
+    # Apply one-hot encoding
+    # Use drop_first=False to keep all categories (including Unknown)
+    categorical_encoded = pd.get_dummies(
+        categorical_data, 
+        columns=CATEGORICAL_FEATURES,
+        prefix=CATEGORICAL_FEATURES,
+        dummy_na=False,  # We already handled NaN by filling with 'Unknown'
+        drop_first=False  # Keep all categories for completeness
     )
-    m_stage_encoder.fit(m_stage_df)
     
     # Process all patients
     processed_features = {}
@@ -633,43 +608,35 @@ def preprocess_clinical_data(dataframe):
         patient_id = row["PatientID"]
         patient_row_idx = dataframe.index.get_loc(idx)
         
-        # Age
-        age_standardized = age_scaler.transform(
-            imputed_df.iloc[[patient_row_idx]][["Age"]].values
-        )
+        # Get standardized age for this patient
+        age_features = age_scaled[patient_row_idx].flatten()
         
-        # Categorical features
-        encoded_categoricals = []
-        for column in LABEL_ENCODED_FEATURES:
-            column_value = imputed_df.iloc[patient_row_idx][column]
-            column_value_str = str(int(round(column_value)))
-            encoded_value = category_encoders[column].transform([column_value_str])
-            encoded_categoricals.append(encoded_value.reshape(-1, 1))
+        # Get one-hot encoded categorical features for this patient
+        categorical_features = categorical_encoded.iloc[patient_row_idx].values
         
-        # M-stage
-        m_stage_value = int(round(imputed_df.iloc[patient_row_idx]["M-stage"]))
-        if m_stage_value == 0:
-            m_stage_category = 'M0'
-        elif m_stage_value == 1:
-            m_stage_category = 'M1'
-        else:
-            m_stage_category = 'Mx'
-        
-        m_stage_encoded = m_stage_encoder.transform([[m_stage_category]])
-        
-        # Combine features
-        categorical_array = np.hstack(encoded_categoricals)
-        complete_features = np.hstack([age_standardized, categorical_array, m_stage_encoded])
-        processed_features[patient_id] = complete_features.flatten()
+        # Combine all features
+        complete_features = np.concatenate([age_features, categorical_features])
+        processed_features[patient_id] = complete_features
+    
+    # Store preprocessors for inference
+    preprocessors = {
+        'age_scaler': age_scaler,
+        'age_median': age_median,
+        'categorical_columns': list(categorical_encoded.columns),
+        'feature_names': ['Age'] + list(categorical_encoded.columns),
+        'n_features': len(complete_features)
+    }
+    
+    print(f"Preprocessed features shape: {len(complete_features)} features per patient")
+    print(f"Age feature: 1 (standardized)")
+    print(f"Categorical features: {len(categorical_encoded.columns)} (one-hot encoded)")
+    print(f"Feature breakdown:")
+    for i, feature_name in enumerate(preprocessors['feature_names']):
+        print(f"  {i}: {feature_name}")
     
     return {
         'features': processed_features,
-        'preprocessors': {
-            'imputer': imputer,
-            'age_scaler': age_scaler,
-            'category_encoders': category_encoders,
-            'ordinal_encoder': m_stage_encoder
-        }
+        'preprocessors': preprocessors
     }
 
 def load_and_cache_dataset(csv_path, image_directories, cache_path="cached_hecktor_data.pkl"):
@@ -704,12 +671,12 @@ def load_and_cache_dataset(csv_path, image_directories, cache_path="cached_heckt
             print(f"Failed to load images for {patient_id}: {e}")
             failed_loads.append(patient_id)
     
-    # Remove failed loads
+    # Remove failed loads from clinical data
     if failed_loads:
         print(f"Excluding {len(failed_loads)} patients due to missing images")
         clinical_df = clinical_df[~clinical_df["PatientID"].isin(failed_loads)]
     
-    # Process clinical features
+    # Process clinical features (now uses one-hot encoding)
     clinical_features = preprocess_clinical_data(clinical_df)
     
     # Save clinical preprocessors separately for inference
@@ -742,6 +709,7 @@ def load_and_cache_dataset(csv_path, image_directories, cache_path="cached_heckt
         pickle.dump(cached_dataset, f)
     
     print(f"Successfully processed {len(patient_images)} patients")
+    print(f"Each patient has {clinical_features['preprocessors']['n_features']} clinical features")
     return cached_dataset
 
 # =============================================================================
@@ -857,7 +825,7 @@ def run_cross_validation(cached_data, folds_json_path=None, batch_size=4,
         model = HecktorSurvivalModel(
             clinical_feature_dim=clinical_dim,
             device=device,
-            feature_dim=128
+            feature_dim=256
         )
         
         # Train the complete system
