@@ -1,30 +1,30 @@
 """
-Utility functions and classes for HECKTOR survival model inference.
-Contains model architectures, preprocessing, and inference logic.
+HECKTOR Survival Model Utilities for Container Deployment
 """
 
 import os
-import json
-import pickle
 import numpy as np
 import pandas as pd
 import torch
+import pickle
+from pathlib import Path
+from monai.transforms import (
+    Compose, EnsureChannelFirst, ScaleIntensity, ToTensor, Resize
+)
 import torch.nn as nn
-import torch.nn.functional as F
-from sklearn.preprocessing import StandardScaler, LabelEncoder, OrdinalEncoder
-from sklearn.impute import KNNImputer
 from monai.networks.nets import resnet18
+import math
 
-# =============================================================================
-# Model Architecture
-# =============================================================================
 
 class FusedFeatureExtractor(nn.Module):
-    """Feature extractor for combining 3D medical imaging and clinical data."""
-    
+    """
+    Feature extractor specifically designed for BaggedIcareSurvival.
+    Combines 3D medical imaging and clinical data into rich survival features.
+    """
     def __init__(self, clinical_feature_dim, feature_output_dim=128):
         super().__init__()
         
+        # Store dimensions for saving
         self.clinical_feature_dim = clinical_feature_dim
         self.feature_output_dim = feature_output_dim
         
@@ -36,7 +36,7 @@ class FusedFeatureExtractor(nn.Module):
         )
         self.imaging_backbone.fc = nn.Identity()
 
-        # Clinical data processor
+        # Clinical data processor with deeper architecture
         self.clinical_processor = nn.Sequential(
             nn.Linear(clinical_feature_dim, 64),
             nn.ReLU(),
@@ -50,7 +50,7 @@ class FusedFeatureExtractor(nn.Module):
             nn.ReLU()
         )
 
-        # Feature fusion
+        # Feature fusion with multiple pathways
         self.feature_fusion = nn.Sequential(
             nn.Linear(512 + 32, 512),
             nn.ReLU(),
@@ -63,7 +63,7 @@ class FusedFeatureExtractor(nn.Module):
             nn.Linear(256, feature_output_dim)
         )
         
-        # Risk prediction head
+        # Risk prediction head for training guidance
         self.risk_head = nn.Sequential(
             nn.Linear(feature_output_dim, 64),
             nn.ReLU(),
@@ -88,389 +88,288 @@ class FusedFeatureExtractor(nn.Module):
         
         return fused_features
 
-# =============================================================================
-# Clinical Data Preprocessor
-# =============================================================================
-
-class ClinicalDataPreprocessor:
-    """Handles clinical data preprocessing using saved preprocessors from training."""
-    
-    def __init__(self, preprocessors):
-        self.imputer = preprocessors['imputer']
-        self.age_scaler = preprocessors['age_scaler']
-        self.category_encoders = preprocessors['category_encoders']
-        self.ordinal_encoder = preprocessors['ordinal_encoder']
-        
-        self.ALL_CLINICAL_FEATURES = [
-            "Age", "Gender", "Tobacco Consumption", "Alcohol Consumption", 
-            "Performance Status", "M-stage"
-        ]
-        
-        self.LABEL_ENCODED_FEATURES = [
-            "Gender", "Tobacco Consumption", "Alcohol Consumption", "Performance Status"
-        ]
-
-    def preprocess_patient_json(self, clinical_json):
-        """
-        Preprocess clinical data from JSON format.
-        
-        Args:
-            clinical_json: Dict with clinical data from EHR JSON
-            
-        Returns:
-            numpy array of processed features
-        """
-        # Convert JSON to expected format
-        patient_dict = self._convert_json_to_features(clinical_json)
-        
-        # Create DataFrame for processing
-        patient_df = pd.DataFrame([patient_dict])
-        
-        # Ensure all required features are present
-        for feature in self.ALL_CLINICAL_FEATURES:
-            if feature not in patient_df.columns:
-                patient_df[feature] = np.nan
-        
-        feature_subset = patient_df[self.ALL_CLINICAL_FEATURES].copy()
-        
-        # Temporary encoding for imputation
-        imputation_data = feature_subset.copy()
-        
-        for column in self.LABEL_ENCODED_FEATURES:
-            known_classes = list(self.category_encoders[column].classes_)
-            value = str(imputation_data[column].iloc[0]).replace('nan', 'Unknown')
-            if value not in known_classes:
-                value = -1
-            else:   
-                imputation_data[column] = known_classes.index(value)
-        
-        # Handle M-stage for imputation
-        m_stage_value = str(imputation_data['M-stage'].iloc[0]).replace('nan', 'Unknown')
-        if m_stage_value in ['M0', '0', '0.0']:
-            m_stage_encoded = 0
-        elif m_stage_value in ['M1', '1', '1.0']:
-            m_stage_encoded = 1
-        else:
-            m_stage_encoded = 2
-        imputation_data['M-stage'] = m_stage_encoded
-        
-        # Apply KNN imputation
-        imputed_features = self.imputer.transform(imputation_data.values)
-        imputed_df = pd.DataFrame(imputed_features, columns=self.ALL_CLINICAL_FEATURES)
-        
-        # Process final features
-        age_standardized = self.age_scaler.transform(imputed_df[["Age"]].values)
-        
-        # Categorical features encoding
-        encoded_categoricals = []
-        for column in self.LABEL_ENCODED_FEATURES:
-            column_value = imputed_df[column].iloc[0]
-            column_value_str = str(int(round(column_value)))
-            
-            try:
-                encoded_value = self.category_encoders[column].transform([column_value_str])
-            except ValueError:
-                encoded_value = np.array([0])
-            
-            encoded_categoricals.append(encoded_value.reshape(-1, 1))
-        
-        # M-stage ordinal encoding
-        m_stage_value = int(round(imputed_df['M-stage'].iloc[0]))
-        if m_stage_value == 0:
-            m_stage_category = 'M0'
-        elif m_stage_value == 1:
-            m_stage_category = 'M1'
-        else:
-            m_stage_category = 'Mx'
-        
-        m_stage_encoded = self.ordinal_encoder.transform([[m_stage_category]])
-        
-        # Combine all features
-        categorical_array = np.hstack(encoded_categoricals)
-        complete_features = np.hstack([age_standardized, categorical_array, m_stage_encoded])
-        
-        return complete_features.flatten()
-    
-    def _convert_json_to_features(self, clinical_json):
-        """Convert EHR JSON to expected feature format."""
-        # Map JSON keys to expected feature names
-        # This mapping might need adjustment based on actual JSON structure
-        feature_dict = {}
-        
-        # Age
-        feature_dict["Age"] = clinical_json.get("age", clinical_json.get("Age", np.nan))
-        
-        # Gender
-        gender = clinical_json.get("gender", clinical_json.get("Gender", "Unknown"))
-        feature_dict["Gender"] = str(gender).upper()
-        
-        # Tobacco Consumption
-        tobacco = clinical_json.get("tobacco", clinical_json.get("Tobacco Consumption", "Unknown"))
-        if str(tobacco).upper() in ['YES', 'Y', '1', 'TRUE', 'SMOKER']:
-            feature_dict["Tobacco Consumption"] = "YES"
-        elif str(tobacco).upper() in ['NO', 'N', '0', 'FALSE', 'NON-SMOKER']:
-            feature_dict["Tobacco Consumption"] = "NO"
-        else:
-            feature_dict["Tobacco Consumption"] = "Unknown"
-        
-        # Alcohol Consumption
-        alcohol = clinical_json.get("alcohol", clinical_json.get("Alcohol Consumption", "Unknown"))
-        if str(alcohol).upper() in ['YES', 'Y', '1', 'TRUE']:
-            feature_dict["Alcohol Consumption"] = "YES"
-        elif str(alcohol).upper() in ['NO', 'N', '0', 'FALSE']:
-            feature_dict["Alcohol Consumption"] = "NO"
-        else:
-            feature_dict["Alcohol Consumption"] = "Unknown"
-        
-        # Performance Status
-        performance = clinical_json.get("performance_status", 
-                                      clinical_json.get("Performance Status", 
-                                      clinical_json.get("karnofsky", np.nan)))
-        feature_dict["Performance Status"] = str(performance) if performance is not None else "Unknown"
-        
-        # M-stage
-        m_stage = clinical_json.get("m_stage", 
-                                   clinical_json.get("M-stage",
-                                   clinical_json.get("M_stage", "Unknown")))
-        feature_dict["M-stage"] = str(m_stage)
-        
-        return feature_dict
-
-# =============================================================================
-# Image Preprocessing
-# =============================================================================
-
-class ImagePreprocessor:
-    """Handles image preprocessing for inference."""
-    
-    def __init__(self, target_size=(96, 96, 96)):
-        self.target_size = target_size
-    
-    def preprocess_images(self, ct_array, pet_array):
-        """
-        Preprocess CT and PET images from numpy arrays.
-        
-        Args:
-            ct_array: CT image as numpy array
-            pet_array: PET image as numpy array
-            
-        Returns:
-            Combined tensor ready for model input
-        """
-        # Ensure arrays are float32
-        ct_array = ct_array.astype(np.float32)
-        pet_array = pet_array.astype(np.float32)
-        
-        # Process each image separately
-        ct_tensor = self._process_single_image(ct_array)
-        pet_tensor = self._process_single_image(pet_array)
-        
-        # Combine CT and PET (both have shape [1, D, H, W])
-        combined_tensor = torch.cat([ct_tensor, pet_tensor], dim=0)  # Shape: [2, D, H, W]
-        
-        # Add batch dimension
-        combined_tensor = combined_tensor.unsqueeze(0)  # Shape: [1, 2, D, H, W]
-        
-        return combined_tensor
-    
-    def _process_single_image(self, image_array):
-        """Process a single image array to tensor."""
-        # Ensure we have the right shape - add channel dimension if needed
-        if len(image_array.shape) == 3:
-            # Shape is (D, H, W), add channel dimension -> (1, D, H, W)
-            image_array = image_array[np.newaxis, ...]
-        elif len(image_array.shape) == 4 and image_array.shape[0] == 1:
-            # Already has channel dimension (1, D, H, W)
-            pass
-        else:
-            raise ValueError(f"Unexpected image shape: {image_array.shape}. Expected 3D or 4D array.")
-        
-        # Convert to tensor
-        tensor = torch.from_numpy(image_array).float()
-        
-        # Apply intensity scaling (normalize to 0-1 range)
-        tensor = self._scale_intensity(tensor)
-        
-        # Resize to target size
-        tensor = self._resize_tensor(tensor)
-        
-        return tensor
-    
-    def _scale_intensity(self, tensor):
-        """Scale intensity values."""
-        # Get min and max values, ignoring any potential NaN values
-        tensor_flat = tensor.flatten()
-        tensor_flat = tensor_flat[~torch.isnan(tensor_flat)]
-        
-        if len(tensor_flat) == 0:
-            return tensor
-        
-        min_val = tensor_flat.min()
-        max_val = tensor_flat.max()
-        
-        # Avoid division by zero
-        if max_val - min_val > 1e-8:
-            tensor = (tensor - min_val) / (max_val - min_val)
-        
-        return tensor
-    
-    def _resize_tensor(self, tensor):
-        """Resize tensor to target size."""
-        # tensor shape: (1, D, H, W)
-        current_size = tensor.shape[1:]  # (D, H, W)
-        
-        if current_size != self.target_size:
-            # Add batch dimension for interpolation: (1, 1, D, H, W)
-            tensor = tensor.unsqueeze(0)
-            
-            # Resize using trilinear interpolation
-            tensor = F.interpolate(
-                tensor, 
-                size=self.target_size, 
-                mode='trilinear', 
-                align_corners=False
-            )
-            
-            # Remove batch dimension: (1, D, H, W)
-            tensor = tensor.squeeze(0)
-        
-        return tensor
-
-# =============================================================================
-# Main Inference Model
-# =============================================================================
-
 class HecktorInferenceModel:
-    """Main inference model for HECKTOR survival prediction."""
+    """
+    HECKTOR survival prediction model for container inference.
+    Processes single patients and returns RFS risk predictions.
+    """
     
     def __init__(self, resource_path):
-        self.resource_path = resource_path
+        """
+        Initialize the inference model.
+        
+        Args:
+            resource_path: Path to resources directory containing model files
+        """
+        self.resource_path = Path(resource_path)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         # Model components
-        self.feature_extractor = None
-        self.icare_model = None
-        self.clinical_preprocessor = None
-        self.image_preprocessor = ImagePreprocessor()
+        self.ensemble_data = None
+        self.fold_models = []
+        self.clinical_preprocessors = None
         
-        # Load all components
-        self._load_model()
-        self._load_preprocessors()
+        # Image preprocessing
+        self.image_transforms = self._create_image_transforms()
+        
+        self._load_model_components()
     
-    def _load_model(self):
-        """Load the trained model components."""
-        print(f"Loading model from {self.resource_path}...")
-        
-        # Load config
-        config_path = self.resource_path / "model_config.json"
-        with open(config_path, 'r') as f:
-            config = json.load(f)
-        
-        clinical_dim = config['clinical_feature_dim']
-        feature_dim = config['feature_dim']
-        
-        # Initialize and load feature extractor
-        self.feature_extractor = FusedFeatureExtractor(
-            clinical_feature_dim=clinical_dim,
-            feature_output_dim=feature_dim
-        ).to(self.device)
-        
-        # Load feature extractor weights
-        feature_extractor_path = self.resource_path / "feature_extractor.pt"
-        state_dict = torch.load(feature_extractor_path, map_location=self.device)
-        self.feature_extractor.load_state_dict(state_dict)
-        self.feature_extractor.eval()
-        
-        # Load BaggedIcareSurvival model
-        icare_path = self.resource_path / "icare_model.pkl"
-        with open(icare_path, 'rb') as f:
-            self.icare_model = pickle.load(f)
-        
-        print(f"Model loaded successfully (Best C-index: {config.get('best_c_index', 'N/A')})")
+    def _create_image_transforms(self):
+        """Create image preprocessing transforms."""
+        return Compose([
+            EnsureChannelFirst(channel_dim="no_channel"),
+            ScaleIntensity(),
+            Resize(spatial_size=(96, 96, 96)),
+            ToTensor()
+        ])
     
-    def _load_preprocessors(self):
-        """Load clinical data preprocessors."""
+    def _load_model_components(self):
+        """Load ensemble model and clinical preprocessors."""
+        # Load ensemble model
+        ensemble_path = self.resource_path / "ensemble_model.pt"
+        if not ensemble_path.exists():
+            raise FileNotFoundError(f"Ensemble model not found: {ensemble_path}")
+        
+        self.ensemble_data = torch.load(ensemble_path, map_location=self.device, weights_only=False)
+        
+        # Initialize fold models
+        self.fold_models = []
+        for fold_data in self.ensemble_data['fold_models']:
+            fold_id = fold_data['fold_id']
+            weight = fold_data['weight']
+                        
+            # Create feature extractor
+            feature_extractor = FusedFeatureExtractor(
+                clinical_feature_dim=self.ensemble_data['clinical_feature_dim'],
+                feature_output_dim=self.ensemble_data['feature_output_dim']
+            ).to(self.device)
+            
+            # Load weights
+            feature_extractor.load_state_dict(fold_data['feature_extractor_state_dict'])
+            feature_extractor.eval()
+            
+            # Store fold model
+            fold_model = {
+                'fold_id': fold_id,
+                'feature_extractor': feature_extractor,
+                'icare_model': fold_data['icare_model'],
+                'weight': weight
+            }
+            
+            self.fold_models.append(fold_model)
+        
+        # Load clinical preprocessors
         preprocessors_path = self.resource_path / "clinical_preprocessors.pkl"
-        print(f"Loading preprocessors from {preprocessors_path}...")
-        
-        with open(preprocessors_path, 'rb') as f:
-            preprocessors = pickle.load(f)
-        
-        self.clinical_preprocessor = ClinicalDataPreprocessor(preprocessors)
-        print("Preprocessors loaded successfully")
+        if preprocessors_path.exists():
+            with open(preprocessors_path, 'rb') as f:
+                self.clinical_preprocessors = pickle.load(f)
+        else:
+            raise FileNotFoundError(f"Clinical preprocessors not found at {preprocessors_path}")        
     
-    def predict_single_patient(self, ct_image, pet_image, clinical_data):
+    def _preprocess_images(self, ct_image, pet_image):
         """
-        Generate prediction for a single patient.
+        Preprocess CT and PET images.
         
         Args:
             ct_image: CT image as numpy array
             pet_image: PET image as numpy array
-            clinical_data: Clinical data as JSON dict
             
         Returns:
-            Float risk score
+            Combined CT+PET tensor
+        """
+        # Apply transforms to each image
+        ct_transformed = self.image_transforms(ct_image)
+        pet_transformed = self.image_transforms(pet_image)
+        
+        # Combine CT and PET channels
+        combined_image = torch.cat([ct_transformed, pet_transformed], dim=0)
+        
+        # Add batch dimension
+        combined_image = combined_image.unsqueeze(0)  # [1, 2, H, W, D]
+        
+        return combined_image.to(self.device)
+    
+    def _preprocess_clinical_data(self, clinical_data):
+        """
+        Preprocess clinical data from EHR JSON.
+        
+        Args:
+            clinical_data: Dictionary containing clinical information
+            
+        Returns:
+            Preprocessed clinical features as tensor
         """
         try:
-            # Print debug info
-            print(f"CT image shape: {ct_image.shape}, dtype: {ct_image.dtype}")
-            print(f"PET image shape: {pet_image.shape}, dtype: {pet_image.dtype}")
-            print(f"Clinical data keys: {list(clinical_data.keys())}")
+            # Extract values, handling NaN/None
+            def handle_nan(value):
+                if value is None or (isinstance(value, (int, float)) and math.isnan(value)):
+                    return float('nan')
+                return value
             
-            # Preprocess images
-            print("Preprocessing images...")
-            combined_image = self.image_preprocessor.preprocess_images(ct_image, pet_image)
-            print(f"Combined image tensor shape: {combined_image.shape}")
+            age = handle_nan(clinical_data.get('Age', None))
+            gender = handle_nan(clinical_data.get('Gender', None))
+            tobacco = handle_nan(clinical_data.get('Tobacco', None))
+            alcohol = handle_nan(clinical_data.get('Alcohol', None))
+            performance = handle_nan(clinical_data.get('Performance', None))
+            treatment = handle_nan(clinical_data.get('Treatment', None))
+            m_stage = clinical_data.get('M-stage', None)  
             
-            # Preprocess clinical data
-            print("Preprocessing clinical data...")
-            clinical_features = self.clinical_preprocessor.preprocess_patient_json(clinical_data)
-            print(f"Clinical features shape: {clinical_features.shape}")
+            # Create DataFrame exactly like training expects
+            patient_df = pd.DataFrame({
+                'PatientID': ['TEMP_PATIENT'],
+                'Age': [age],
+                'Gender': [gender],
+                'Tobacco Consumption': [tobacco],
+                'Alcohol Consumption': [alcohol],
+                'Performance Status': [performance],
+                'M-stage': [m_stage],
+                'Treatment': [treatment]
+            })
             
-            # Extract features
-            print("Extracting features...")
-            self.feature_extractor.eval()
-            with torch.no_grad():
-                combined_image = combined_image.to(self.device)
-                clinical_tensor = torch.tensor(clinical_features, dtype=torch.float32).unsqueeze(0).to(self.device)
-                
-                features = self.feature_extractor(combined_image, clinical_tensor)
-                features_np = features.cpu().numpy()
-                print(f"Extracted features shape: {features_np.shape}")
-            
-            # Generate prediction using BaggedIcareSurvival
-            print("Generating prediction...")
-            prediction = self.icare_model.predict(features_np)
-            print(f"Raw prediction: {prediction}")
-            
-            # Return single prediction value
-            return float(prediction[0])
             
         except Exception as e:
-            print(f"Error in prediction: {e}")
-            import traceback
-            traceback.print_exc()
+            print(f"Error extracting clinical data: {e}")
             raise e
-
-# =============================================================================
-# Utility Functions
-# =============================================================================
-
-def check_resource_files(resource_path):
-    """Check if all required resource files are present."""
-    required_files = [
-        "model_config.json",
-        "feature_extractor.pt", 
-        "icare_model.pkl",
-        "clinical_preprocessors.pkl"
-    ]
+        
+        # Use the existing preprocessing method
+        clinical_result = self.preprocess_test_clinical_data(patient_df)
+        processed_features = clinical_result['features']['TEMP_PATIENT']
+        
+        return torch.tensor(processed_features, dtype=torch.float32).unsqueeze(0).to(self.device)
     
-    missing_files = []
-    for file_name in required_files:
-        if not (resource_path / file_name).exists():
-            missing_files.append(file_name)
+    def preprocess_test_clinical_data(self, dataframe):
+        """
+        Preprocess clinical data using the same parameters as training.
+        """
+        # All clinical features (same as training)
+        ALL_CLINICAL_FEATURES = [
+            "Age", "Gender", "Tobacco Consumption", "Alcohol Consumption", 
+            "Performance Status", "M-stage", "Treatment"
+        ]
+        
+        CATEGORICAL_FEATURES = [
+            "Gender", "Tobacco Consumption", "Alcohol Consumption", 
+            "Performance Status", "M-stage", "Treatment"
+        ]
+        
+        feature_subset = dataframe[ALL_CLINICAL_FEATURES].copy()
+        
+        # Handle Age using training parameters
+        age_median = self.clinical_preprocessors['age_median']
+        age_scaler = self.clinical_preprocessors['age_scaler']
+        
+        feature_subset["Age"] = feature_subset["Age"].fillna(age_median)
+        age_scaled = age_scaler.transform(feature_subset[["Age"]])
+        
+        # Handle categorical features
+        categorical_data = feature_subset[CATEGORICAL_FEATURES].copy()
+        for col in CATEGORICAL_FEATURES:
+            categorical_data[col] = categorical_data[col].fillna('Unknown')
+            categorical_data[col] = categorical_data[col].astype(str)
+        
+        # Apply one-hot encoding (same structure as training)
+        categorical_encoded = pd.get_dummies(
+            categorical_data, 
+            columns=CATEGORICAL_FEATURES,
+            prefix=CATEGORICAL_FEATURES,
+            dummy_na=False,
+            drop_first=False
+        )
+        
+        # Ensure same feature structure as training
+        training_categorical_columns = [col for col in self.clinical_preprocessors['categorical_columns']]
+        
+        # Add missing columns with zeros (ensure they are numeric)
+        for col in training_categorical_columns:
+            if col not in categorical_encoded.columns:
+                categorical_encoded[col] = 0
+        
+        # Remove extra columns and reorder to match training
+        categorical_encoded = categorical_encoded[training_categorical_columns]
+        
+        # CRITICAL: Ensure all categorical features are numeric
+        categorical_encoded = categorical_encoded.astype(np.float32)
+        
+        # Process all patients
+        processed_features = {}
+        
+        for idx, row in dataframe.iterrows():
+            patient_id = row["PatientID"]
+            patient_row_idx = dataframe.index.get_loc(idx)
+            
+            age_features = age_scaled[patient_row_idx].flatten().astype(np.float32)
+            categorical_features = categorical_encoded.iloc[patient_row_idx].values.astype(np.float32)
+            
+            complete_features = np.concatenate([age_features, categorical_features]).astype(np.float32)
+            
+            # Verify no object types
+            if complete_features.dtype == np.object_:
+                # Convert any remaining object types to float
+                complete_features = complete_features.astype(np.float32)
+            
+            processed_features[patient_id] = complete_features
+        
+        return {
+            'features': processed_features,
+            'preprocessors': self.clinical_preprocessors
+        }
     
-    if missing_files:
-        raise FileNotFoundError(f"Missing required resource files: {missing_files}")
     
-    print("All required resource files found.")
+    def predict_single_patient(self, ct_image, pet_image, clinical_data):
+        """
+        Predict RFS risk for a single patient.
+        
+        Args:
+            ct_image: CT image as numpy array
+            pet_image: PET image as numpy array
+            clinical_data: Clinical data as dictionary
+            
+        Returns:
+            RFS risk prediction as float
+        """
+        # Preprocess images
+        image_tensor = self._preprocess_images(ct_image, pet_image)
+        
+        # Preprocess clinical data
+        clinical_tensor = self._preprocess_clinical_data(clinical_data)
+        
+        
+        # Get predictions from all folds
+        fold_predictions = []
+        fold_weights = []
+        
+        for fold_model in self.fold_models:
+            fold_id = fold_model['fold_id']
+            weight = fold_model['weight']
+            
+            # Extract features
+            with torch.no_grad():
+                features = fold_model['feature_extractor'](image_tensor, clinical_tensor)
+                features_np = features.cpu().numpy()
+            
+            # Get prediction from icare model
+            prediction = fold_model['icare_model'].predict(features_np)[0]
+            
+            fold_predictions.append(prediction)
+            fold_weights.append(weight)
+            
+        
+        # Combine predictions
+        fold_predictions = np.array(fold_predictions)
+        combination_method = self.ensemble_data['combination_method']
+        
+        if combination_method == "median":
+            final_prediction = np.median(fold_predictions)
+        elif combination_method == "average":
+            final_prediction = np.mean(fold_predictions)
+        elif combination_method == "weighted_average":
+            fold_weights = np.array(fold_weights)
+            normalized_weights = fold_weights / np.sum(fold_weights)
+            final_prediction = np.average(fold_predictions, weights=normalized_weights)
+        elif combination_method == "best_fold":
+            best_fold_idx = np.argmax(fold_weights)
+            final_prediction = fold_predictions[best_fold_idx]
+        else:
+            final_prediction = np.median(fold_predictions)
+                
+        return float(final_prediction)
