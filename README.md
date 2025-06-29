@@ -2,6 +2,9 @@
 
 This repository contains instructions and examples for creating a valid docker image for the [HECKTOR2025 challenge](https://hecktor25.grand-challenge.org/). 
 
+# <img src="assets/logos/countdown.png" width="24" alt="⏳"/> Submission Countdown
+Animation TBA
+
 
 # About
 
@@ -196,9 +199,8 @@ The ```**main**``` branch is used to build and test the baseline models for each
 
 ---
 
-# <img src="assets/logos/countdown.png" width="24" alt="⏳"/> Submission Countdown
 
-![Time until submission](https://img.shields.io/countdown/2025-08-15T23:59:00Z?label=Time%20until%20deadline&style=flat-square)
+
 
 
 # Saving and Uploading Containers
