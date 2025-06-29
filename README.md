@@ -48,7 +48,7 @@ This repository contains the submission template and instructions for the [Grand
 - **Docker Engine:**
   - You can follow the instructions [here](https://docs.docker.com/engine/install/) to install `docker` on your system
     - ```command: sudo pacman -S docker```
-    - Alternatively, you can also install using following steps:
+  - Alternatively, you can also install using following steps:
 
       ```bash
       sudo apt-get update && sudo apt-get install -y \
@@ -93,9 +93,7 @@ This repository contains the submission template and instructions for the [Grand
 
 # Baseline Inference
 
-# Baseline Inference
-
-The **main** branch hosts the baseline model setup. Users can add their model code here, then build, test, and save their Docker container. We support three separate tasks: **Task1**, **Task2**, and **Task3**. For each task, create a dedicated model under its folder.
+The ```**main**``` branch is used to build and test the baseline models for each task. Once the models are ready, you can follow the following steps to perform inference using docker. Below here is a structure of the ```template-docker``` branch. We support three separate tasks: **Task1**, **Task2**, and **Task3**. For each task, you should have a separate dedicated model under its folder.
 
 1. **Repository Structure**
 
@@ -117,7 +115,7 @@ The **main** branch hosts the baseline model setup. Users can add their model co
 
 2. **Model Files and Packages**
 
-   * Place all model weights, configuration files, or auxiliary code inside the `resources/` folder of the corresponding Task directory.
+   * Place all model weights, configuration files, or auxiliary code inside the `resources/` folder of the corresponding Task directory as this is the only directory where you can place your supporting files.
    * You **may** update `requirements.txt` within each Task folder to install any additional Python packages needed by your model.
    * **Do NOT** modify any other files or directories.
 
@@ -126,28 +124,28 @@ The **main** branch hosts the baseline model setup. Users can add their model co
    * All input and output files during inference must be read from or written to the `/tmp/` directory inside the container.
 
 4. **Build the Container**
-
+  * To build your container, you can run ```do_build.sh``` file.
    ```bash
    # From repo root
-   ./do_build.sh main           # builds an image tagged `challenge:<branch>`
+   ./do_build.sh           # builds an image tagged `challenge:<branch>`
    ```
 
 5. **Local Test Run**
-
+  * The ```do_test_run.sh``` file can be used to test the container on local machines before submitting the finalized version. 
    ```bash
    # Runs inference locally mounting /tmp data
-   ./do_test_run.sh main
+   ./do_test_run.sh
    ```
 
-6. **Commit and Save**
-
+6. **Save Container**
+  * You can use ```do_save.sh``` file to save your docker container.
    ```bash
-   ./do_save.sh main my_submission.tar
+   ./do_save.sh
    ```
 
-7. **Entry Point**
+7. **Performing Inference**
 
-   * `inference.py` is the script executed at container runtime. Implement or call your model-loading and prediction code here.
+   * `inference.py` is the entry point script executed at container runtime. You can implement or call your model-loading and prediction code here.
 
 
    <!-- * Inputs must mount to `/tmp/images`
