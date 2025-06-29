@@ -145,19 +145,61 @@ The ```**main**``` branch is used to build and test the baseline models for each
 
 7. **Performing Inference**
 
-   * `inference.py` is the entry point script executed at container runtime. You can implement or call your model-loading and prediction code here.
+  * `inference.py` is the entry point script executed at container runtime. You can implement or call your model-loading and prediction code here.
 
 
    <!-- * Inputs must mount to `/tmp/images`
    * Outputs will be written to `/tmp/output` -->
 
-# Restrictions and Submission Tips
+<!-- # Restrictions and Submission Tips
 
 * **No network access**: All downloads must occur before container startup.
 * **No GPU**: Inference runs on CPU only.
 * **I/O paths**: Read inputs only from `/tmp/images` and write outputs only to `/tmp/output`.
 * **Time limit**: Entire inference must finish within **30 minutes**.
-* **File writes**: Do not create or modify files outside `/tmp`
+* **File writes**: Do not create or modify files outside `/tmp` -->
+
+# <img src="assets/logos/restrictions.svg" width="24" alt="⚠️"/> Grand Challenge Restrictions & Submission Tips
+
+1. **Offline Execution Only**  
+   Your container **must not** attempt any network access (HTTP, SSH, DNS, etc.). Any outgoing connection will cause automatic disqualification.
+
+2. **CPU-Only & Memory Constraints**  
+   - **No GPU**: Your code will run on CPU-only evaluation nodes.  
+   - **Memory Limit**: Peak RAM usage must stay under **16 GB**.
+
+3. **Filesystem Write Permissions**  
+   All writes (models, logs, outputs) **must** go under `/tmp/`. Writing elsewhere on the filesystem will be ignored or blocked.
+
+4. **I/O Interface**  
+   - **Input**: read exclusively from `/tmp/input/`  
+   - **Output**: write exclusively to `/tmp/output/`  
+   - **No Extra Files**: do not generate caches or logs in other directories.
+
+5. **Time Limit**  
+   Each task has a **15-minute** wall-clock limit. Any process running longer will be force-terminated.
+
+6. **Submission Tips**  
+   - **Local Validation**: always run `./do_test_run.sh` before packing.  
+   - **Save Your Container**: use `./do_save.sh` to generate a `<task>_submission.tar.gz` (max **2 GB**).  
+   - **Naming Convention**: name archives as `submission_task1.tar.gz`, `submission_task2.tar.gz`, etc.  
+   - **Double-Check**: ensure `TaskX/resources/` contains all model artifacts and updated `requirements.txt`.
+
+7. **Common Error Messages**  
+   | Error Text                          | Likely Cause                                    | Fix                                 |
+   |-------------------------------------|-------------------------------------------------|-------------------------------------|
+   | `Model file not found`              | Missing weights in `TaskX/resources/`           | Add your `.pth`/`.onnx` files       |
+   | `ModuleNotFoundError: …`           | Dependency not declared                         | Update `requirements.txt` & rebuild |
+   | `Permission denied: '/some/path'`   | Writing outside `/tmp/`                         | Redirect writes to `/tmp/`          |
+   | `Killed` or `OOM`                   | Exceeded memory limit                           | Reduce batch size or model footprint|
+   | `Timeout`                           | Exceeded 15-minute runtime                      | Optimize preprocessing/inference    |
+
+---
+
+# <img src="assets/logos/countdown.svg" width="24" alt="⏳"/> Submission Countdown
+
+![Time until submission](https://img.shields.io/countdown/2025-08-15T23:59:00Z?label=Time%20until%20deadline&style=flat-square)
+
 
 # Saving and Uploading Containers
 
