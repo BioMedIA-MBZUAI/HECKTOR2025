@@ -39,63 +39,119 @@ This repository contains the submission template and instructions for the [Grand
 
 ## Linux
 
-1. Install prerequisites:
+### Install prerequisites
 
-   ```bash
-   sudo apt-get update && sudo apt-get install -y \
-     apt-transport-https \
-     ca-certificates \
-     curl \
-     software-properties-common
-   ```
-2. Add Docker’s GPG key and repository:
+  As most of the participants might be using Linux, so we provide detailed steps to set-up the docker.
+  To create and test your docker setup, you will need to install [Docker Engine](https://docs.docker.com/engine/install/)
+  and [NVIDIA-container-toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) (in case you need GPU computation).
 
-   ```bash
-   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-   sudo add-apt-repository \
-     "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-   ```
-3. Install Docker Engine:
+- **Docker Engine:**
+  - You can follow the instructions [here](https://docs.docker.com/engine/install/) to install `docker` on your system
+    - ```command: sudo pacman -S docker```
+    - Alternatively, you can also install using following steps:
 
-   ```bash
-   sudo apt-get update && sudo apt-get install -y docker-ce
-   ```
-4. Verify installation:
+      ```bash
+      sudo apt-get update && sudo apt-get install -y \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        software-properties-common
+      ```
+    - Add Docker’s GPG key and repository:
 
-   ```bash
-   docker --version
-   ```
+      ```bash
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      sudo add-apt-repository \
+        "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+      ```
+    - Install Docker Engine:
+
+      ```bash
+      sudo apt-get update && sudo apt-get install -y docker-ce
+      ```
+    - Verify installation:
+
+      ```bash
+      docker --version
+      ```
+  - To verify that docker has been successfully installed, please run ```docker run hello-world```
+  - If the above command does not work run ```systemctl status docker``` to check docker status. If inactive run ```systemctl start docker```.
+  - If you can not run docker run ```hello-world``` without writing sudo first, you need to follow the instruction [here](https://docs.docker.com/engine/install/linux-postinstall/)
+    - ```sudo groupadd docker```
+    - ```sudo usermod -aG docker $USER```
+    - restart your machine
+- **Nvidia-container-toolkit:**
+  - You can follow the instruction [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) to install `nvidia-container-toolkit` on you system
+    - Following commands can be executed:
+      - ```sudo pacman -Syu nvidia-container-toolkit```
+      - ```sudo nvidia-ctk runtime configure --runtime=docker```
+      - ```sudo systemctl restart docker```
+  - To verify you can access gpu inside docker by running ```docker run --rm --gpus all nvidia/cuda:12.1.1-runtime-ubuntu22.04 nvidia-smi```
+  - git and git-lfs and a github account (grand challenge website to clone a repo):
+    - make sure you have access to git by running ```git --version```
+
 
 # Baseline Inference
 
-This section explains how to run the provided baseline inference container.
+# Baseline Inference
 
-1. **Build or pull the image**:
+The **main** branch hosts the baseline model setup. Users can add their model code here, then build, test, and save their Docker container. We support three separate tasks: **Task1**, **Task2**, and **Task3**. For each task, create a dedicated model under its folder.
 
-   ```bash
-   # To build locally
-   docker build -t challenge-baseline .
+1. **Repository Structure**
 
-   # Or pull from Docker Hub
-   docker pull your-dockerhub-username/challenge-baseline:latest
+   ```text
+   ├── Task1/
+   │   ├── resources/       # Place your model files here
+   │   ├── requirements.txt # Modify only to add new packages
+   │   └── ...
+   ├── Task2/
+   │   └── resources/
+   ├── Task3/
+   │   └── resources/
+   ├── Dockerfile.template # Base Dockerfile for reference
+   ├── do_build.sh         # Script to build container
+   ├── do_test_run.sh      # Script to test container locally
+   ├── do_save.sh          # Script to save container as tarball
+   └── inference.py        # Entry point: loads models, runs inference
    ```
 
-2. **Prepare input data**
+2. **Model Files and Packages**
 
-   * Place all test images in a local folder, e.g. `~/data/images/`.
-   * **Do NOT** modify the `Dockerfile`, entrypoint script (`inference.sh`), or `/app/config/` directory.
+   * Place all model weights, configuration files, or auxiliary code inside the `resources/` folder of the corresponding Task directory.
+   * You **may** update `requirements.txt` within each Task folder to install any additional Python packages needed by your model.
+   * **Do NOT** modify any other files or directories.
 
-3. **Run inference**:
+3. **Working Directory**
+
+   * All input and output files during inference must be read from or written to the `/tmp/` directory inside the container.
+
+4. **Build the Container**
 
    ```bash
-   docker run --rm \
-     -v ~/data/images:/tmp/images:ro \
-     -v ~/data/output:/tmp/output:rw \
-     challenge-baseline
+   # From repo root
+   ./do_build.sh main           # builds an image tagged `challenge:<branch>`
    ```
 
-   * Inputs must mount to `/tmp/images`
-   * Outputs will be written to `/tmp/output`
+5. **Local Test Run**
+
+   ```bash
+   # Runs inference locally mounting /tmp data
+   ./do_test_run.sh main
+   ```
+
+6. **Commit and Save**
+
+   ```bash
+   ./do_save.sh main my_submission.tar
+   ```
+
+7. **Entry Point**
+
+   * `inference.py` is the script executed at container runtime. Implement or call your model-loading and prediction code here.
+
+
+   <!-- * Inputs must mount to `/tmp/images`
+   * Outputs will be written to `/tmp/output` -->
 
 # Restrictions and Submission Tips
 
