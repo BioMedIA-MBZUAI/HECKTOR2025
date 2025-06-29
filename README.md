@@ -16,6 +16,8 @@ This repository contains instructions and examples for creating a valid docker f
 ## Basic Instructions <a name="basic_instructions"></a>
 
 
+
+
 - This section is to guide the participants to the [submission tips](https://grand-challenge.org/documentation/making-a-challenge-submission/#submission-tips) documentation. This includes important information like:
   1. The duration of inference jobs will be limited by the challenge you created the container.
   2. The container you upload for your algorithm cannot exceed 10GB.
