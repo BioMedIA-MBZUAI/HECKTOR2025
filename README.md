@@ -196,7 +196,7 @@ The ```**main**``` branch is used to build and test the baseline models for each
 
 ---
 
-# <img src="assets/logos/countdown.svg" width="24" alt="⏳"/> Submission Countdown
+# <img src="assets/logos/countdown.png" width="24" alt="⏳"/> Submission Countdown
 
 ![Time until submission](https://img.shields.io/countdown/2025-08-15T23:59:00Z?label=Time%20until%20deadline&style=flat-square)
 
