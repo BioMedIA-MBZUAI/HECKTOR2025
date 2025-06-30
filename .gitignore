@@ -2,3 +2,36 @@ Task_2/resources/clinical_preprocessors.pkl
 Task_2/resources/ensemble_model.pt
 Task_2/test/input/images/ct/HGJ-062__CT.mha
 Task_2/test/input/images/pet/HGJ-062__PT.mha
+
+# Task1 specific ignores
+# Model checkpoints and trained weights
+Task1/scripts/experiments/
+Task1/experiments/
+*.pth
+*.pt
+*.ckpt
+
+# Data files
+*.npz
+*.nii.gz
+*.npy
+*.h5
+*.hdf5
+
+# Large files and datasets
+*/dataset/
+*/data/
+*_data/
+
+# Logs and temporary files
+*.log
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+.vscode/
+.idea/
+
+# TensorBoard logs
+tensorboard_logs/
+runs/
