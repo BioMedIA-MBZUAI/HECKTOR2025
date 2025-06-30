@@ -529,4 +529,4 @@ class HecktorInferenceModel:
         else:
             final_prediction = np.median(fold_predictions)
                 
-        return -float(final_prediction)
+        return float(final_prediction)
