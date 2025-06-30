@@ -342,7 +342,7 @@ def main():
                        help="Path to ensemble model file (.pt)")
     parser.add_argument("--clinical_preprocessors", required=True, 
                        help="Path to clinical preprocessors file (optional)")
-    parser.add_argument("--batch_size", type=int, default=4,
+    parser.add_argument("--batch_size", type=int, default=1,
                        help="Batch size for inference")
     
     args = parser.parse_args()

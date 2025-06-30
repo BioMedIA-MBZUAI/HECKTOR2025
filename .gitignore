@@ -1,0 +1,4 @@
+Task_2/resources/clinical_preprocessors.pkl
+Task_2/resources/ensemble_model.pt
+Task_2/test/input/images/ct/HGJ-062__CT.mha
+Task_2/test/input/images/pet/HGJ-062__PT.mha
