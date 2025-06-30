@@ -208,9 +208,9 @@ class HecktorInferenceModel:
             
             age = handle_nan(clinical_data.get('Age', None))
             gender = handle_nan(clinical_data.get('Gender', None))
-            tobacco = handle_nan(clinical_data.get('Tobacco', None))
-            alcohol = handle_nan(clinical_data.get('Alcohol', None))
-            performance = handle_nan(clinical_data.get('Performance', None))
+            tobacco = handle_nan(clinical_data.get('Tobacco Consumption', None))
+            alcohol = handle_nan(clinical_data.get('Alcohol Consumption', None))
+            performance = handle_nan(clinical_data.get('Performance Status', None))
             treatment = handle_nan(clinical_data.get('Treatment', None))
             m_stage = clinical_data.get('M-stage', None)  
             

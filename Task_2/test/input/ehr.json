@@ -1,9 +1,9 @@
 {
     "Age": 71,
     "Gender": 1,
-    "Tobacco": 0,
-    "Alcohol": 1,
-    "Performance": 0,
+    "Tobacco Consumption:": 0,
+    "Alcohol Consumption": 1,
+    "Performance Status": 0,
     "Treatment": 1,
     "M-stage": "M0"
 }

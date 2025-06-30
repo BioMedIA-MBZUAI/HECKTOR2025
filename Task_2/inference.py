@@ -10,6 +10,7 @@ import SimpleITK
 import numpy as np
 import torch
 from resources.utils import HecktorInferenceModel
+import os
 
 INPUT_PATH = Path("/input")
 OUTPUT_PATH = Path("/output")
@@ -29,12 +30,22 @@ def run():
     )
     
     # We don't use these for our model, but they're part of the interface
-    input_dosimetry_ct = load_image_file_as_array(
-        location=INPUT_PATH / "images/dosimetry-ct",
-    )
-    input_radiotherapy_planning_dose_map = load_image_file_as_array(
-        location=INPUT_PATH / "images/radiotherapy-planning-dose-map",
-    )
+    try:
+        ct_planning = load_image_file_as_array(
+            location=INPUT_PATH / "images/ct-planning",
+        )
+
+    except FileNotFoundError:
+        print(f"No image files found in {INPUT_PATH}/images/ct-planning")
+        ct_planning = None
+    
+    try:
+        rt_dose_map = load_image_file_as_array(
+            location=INPUT_PATH / "images/rt-dose",
+        )
+    except FileNotFoundError:
+        print(f"No image files found in {INPUT_PATH}/images/rt-dose")
+        rt_dose_map = None
     
     # Show torch info
     show_torch_cuda_info()
