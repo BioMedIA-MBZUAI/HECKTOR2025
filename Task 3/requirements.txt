@@ -4,3 +4,4 @@ numpy
 monai
 joblib
 scikit-learn
+scikit-image
