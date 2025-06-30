@@ -322,6 +322,9 @@ def run_inference(csv_path, images_dir, ensemble_path,
         true_events = np.array(true_events)
         
         # Calculate C-index (negative predictions because we want higher risk = lower survival)
+        print(f"True times: {true_times}")
+        print(f"True events: {true_events}")
+        print(f"Final predictions: {final_predictions}")
         c_index = concordance_index(true_times, -final_predictions, true_events)
         
         print(f"C-index: {c_index:.4f}")
@@ -339,7 +342,7 @@ def main():
                        help="Path to ensemble model file (.pt)")
     parser.add_argument("--clinical_preprocessors", required=True, 
                        help="Path to clinical preprocessors file (optional)")
-    parser.add_argument("--batch_size", type=int, default=4,
+    parser.add_argument("--batch_size", type=int, default=1,
                        help="Batch size for inference")
     
     args = parser.parse_args()
