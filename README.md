@@ -4,7 +4,213 @@
   <img src="/doc/images/HECKTOR-main.jpeg">
 </p>
 
-This repository contains instructions and examples for creating a valid docker for [HECKTOR 2025 Challenge](https://hecktor25.grand-challenge.org/hecktor25/) and how you can submit it to the [Grand Challenge](https://hecktor25.grand-challenge.org/hecktor25/) for evaluation.
+Welcome to the **HECKTOR 2025 Challenge** repository! This repository contains instructions and examples for creating a baseline and a valid docker for [HECKTOR 2025 Challenge](https://hecktor25.grand-challenge.org/hecktor25/). It will also help you with how you can submit your designed model to the [Grand Challenge](https://hecktor25.grand-challenge.org/hecktor25/) for evaluation. Here you’ll find everything you need to get started quickly: from understanding the challenge, to setting up your environment, training your first model, and evaluating your results. So this reporsitory has **two primary branches** 🌲:
+
+- **main**:  
+  Here you’ll find step-by-step guides, data loaders, training scripts, and inference examples so you can get a working model up and running in minutes.
+
+- **docker-template**:  
+  Designed for containerizing and submitting your final models to the Grand Challenge. This branch provides a Docker-based inference template, build/test/save scripts, and enforces all challenge restrictions (no network, CPU-only, `/tmp/` I/O, time limits, etc.).
+---
+
+# How can this Repo help?
+This branch is the first thing you see when you click our challenge Github link. It's totally perfect if you’re new to the challenge or unfamiliar with our setup. You’ll find everything here to:
+
+```text
+1. Understand what the challenge is about  
+2. Set up your development environment  
+3. Train models on our provided data  
+4. Test and evaluate your results  
+5. Explore ideas for improving performance 
+```
+
+---
+## 🚀 About the HECKTOR'25 Challenge
+Head and Neck (H&N) cancers are among the most common cancers worldwide (5th leading cancer by incidence) [Parkin et al. 2005]. Radiotherapy combined with cetuximab has been established as a standard treatment [Bonner et al. 2010]. However, locoregional failures remain a major challenge and occur in up to 40% of patients in the first two years after the treatment [Chajon et al. 2013]. By focusing on metabolic and morphological tissue properties, respectively, PET and CT modalities include complementary and synergistic information for cancerous lesion segmentation as well as tumor characteristics potentially relevant for patient outcome prediction and HPV status diagnosis, in addition to usual clinical variables (e.g., age, gender, treatment modality, etc.). Modern image analysis (radiomics, machine, and deep learning) methods must be developed and, more importantly, rigorously evaluated, in order to extract and leverage this information. That is why, HEad and neCK TumOR (HECKTOR) Lesion Segmentation, Diagnosis and Prognosis challenge has been introduced in last few years. 
+
+Following the success of the first editions of the HECKTOR challenge from 2020 through 2022, this challenge will be presented at the 28th International Conference on Medical Image Computing and Computer-Assisted Intervention (MICCAI) 2025 in Daejeon, South Korea. This year, three tasks are proposed where the participants can choose to participate in any or all tasks. Participants will train models on our provided datasets, submit predictions, and compete on different metrics and robustness. Deadlines and leaderboard details are on the [challenge website](https://hecktor25.grand-challenge.org/timeline/). 
+
+- **Tasks:**  
+  - **Task 1:** The automatic detection and segmentation of Head and Neck (H&N) primary tumors and lymph nodes in FDG-PET/CT images.
+  - **Task 2:** The prediction of Recurrence-Free Survival (RFS) from the FDG-PET/CT images, available clinical information, and radiotherapy planning dose maps.
+  - **Task 3:** The diagnosis of HPV status from the FDG-PET/CT images and available clinical information.
+- **Submission Deadline:** 15th August to 1st September 2025  
+- **Website & Rules:** [Participation Policies](https://hecktor25.grand-challenge.org/participation-policies/)
+
+
+---
+
+<!-- ## 🌲 Repository Branches
+
+- **main**  
+  - For **newcomers**: step-by-step guides, data loaders, training & inference scripts.  
+  - **Goal:** get a working model up and running in minutes.  
+
+- **docker-template**  
+  - For **submission**: contains Docker setup, inference entrypoint, and all submission restrictions.  
+  - **Goal:** containerize your final model for evaluation.  
+
+--- -->
+
+## 📑 Table of Contents
+
+1. [Getting the Data](#-getting-the-data)  
+2. [Task Folders & Structure](#-task-folders--structure)  
+3. [Environment Setup & Baseline](#-environment-setup--baseline)  
+4. [Training Your Model](#-training-your-model)  
+5. [Inference & Evaluation](#-inference--evaluation)  
+6. [Next Steps & Tips](#-next-steps--tips)  
+
+---
+
+## 📥 Getting the Data
+
+1. **Download:** Go to the [Dataset Section](https://hecktor25.grand-challenge.org/dataset/) on challenge website and follow the instructions provided to download the dataset. 
+
+2. **Dataset Structure:** Following is the structure of the dataset directory:
+
+```text
+hecktor2025_training/
+  ├── Task 1
+      ├── CHUM-001
+        ├── CHUM-001__CT.nii.gz 
+        ├── CHUM-001__PT.nii.gz
+        └── CHUM-001.nii.gz # Label file (GTVp=1, GTVn=2)
+      ├── CHUM-002
+      ├── ...
+      └── HECKTOR_2025_Training_Task_1.csv #Clinical data
+  ├── Task 2
+      ├── CHUM-001
+        ├── CHUM-001__CT.nii.gz
+        ├── CHUM-001__PT.nii.gz
+        ├── CHUM-001__CTPlanning.nii.gz* # Subset only
+        └── CHUM-001__RTDOSE.nii.gz* # Subset only
+      ├── CHUM-002
+      ├── ...
+      └── HECKTOR_2025_Training_Task_2.csv # RFS endpoint data
+  └── Task 3
+      ├── CHUM-001
+        ├── CHUM-001__CT.nii.gz
+        └── CHUM-001__PT.nii.gz
+      ├── CHUM-002
+      ├── ...
+      └── HECKTOR_2025_Training_Task_1.csv # HPV Status data
+```
+3. **Dataset Description**: The data originates from FDG-PET and low-dose non-contrast-enhanced CT images (acquired with combined PET/CT scanners) of the Head & Neck region. It was collected from 10 different [centers](https://hecktor25.grand-challenge.org/dataset/#dataset-structure). Following are the different formats of the dataset:
+
+- **Image Data (PET/CT):**
+  - All tasks include PET and CT scans for each patient, using the naming convention:
+  - CenterName_PatientID__Modality.nii.gz
+  - __CT.nii.gz — Computed tomography image
+  - __PT.nii.gz — Positron emission tomography image
+- **Segmentations (Task 1 only):**
+  - Each patient has a single label file: PatientID.nii.gz
+    - Label 1 = Primary tumor (GTVp)
+    - Label 2 = Lymph nodes (GTVn)
+- **Radiotherapy Dose Data (Task 2 only):**
+  - For a subset of patients:
+    - __CTPlanning.nii.gz — CT planning scan
+    - __RTDOSE.nii.gz — RT dose map
+- **Clinical Information:**
+  - Provided in HECKTOR_2025_Training_Task_#.csv, includes:
+  - Center, gender, age, tobacco and alcohol use, performance status, treatment (radiotherapy only or chemoradiotherapy), M-stage (metastasis)
+  - Relapse indicator and RFS value (used as the target for Task 2)
+  - HPV status (used as the target for Task 3)
+  - Some entries may contain missing data, but the 2025 edition includes significant updates.
+
+If you require any further details about the dataset, please visit the [Dataset](https://hecktor25.grand-challenge.org/dataset/#dataset-structure) section on the challenge website. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Table of Contents
 1. [Basic Instructions](#basic_instructions)
