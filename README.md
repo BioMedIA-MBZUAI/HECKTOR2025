@@ -96,7 +96,7 @@ This repository contains the submission template and instructions for the [Grand
 
 # Baseline Inference
 
-The ```**main**``` branch is used to build and test the baseline models for each task. Once the models are ready, you can follow the following steps to perform inference using docker. Below here is a structure of the ```template-docker``` branch. We support three separate tasks: **Task1**, **Task2**, and **Task3**. For each task, you should have a separate dedicated model under its folder.
+The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is used to build and test the baseline models for each task. Once the models are ready, you can follow the following steps to perform inference using docker. Below here is a structure of the ```template-docker``` branch. We support three separate tasks: **Task1**, **Task2**, and **Task3**. For each task, you should have a separate dedicated model under its folder.
 
 1. **Repository Structure**
 
@@ -219,6 +219,7 @@ The ```**main**``` branch is used to build and test the baseline models for each
    ```
 
 3. **Upload to Sanity Check**:
+
   In the HECKTOR challenge, we have three tasks (`Task 1 - Detection and Segmentation`, `Task 2 - Prognosis`, and `Task 3 - Classification`) and for each task, participants compete in three phases. So here, the task submission is divided into 3 phases:
 
   - **Sanity Check Phase:** Consists of 3 images to ensure participants are familiar with the Grand Challenge platform and that their dockers run without errors. All teams must make their submission to this phase and will receive feedback on any errors.
