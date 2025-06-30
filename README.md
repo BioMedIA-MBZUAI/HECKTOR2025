@@ -6,11 +6,9 @@
 
 Welcome to the **HECKTOR 2025 Challenge** repository! This repository contains instructions and examples for creating a baseline and a valid docker for [HECKTOR 2025 Challenge](https://hecktor25.grand-challenge.org/hecktor25/). It will also help you with how you can submit your designed model to the [Grand Challenge](https://hecktor25.grand-challenge.org/hecktor25/) for evaluation. Here you’ll find everything you need to get started quickly: from understanding the challenge, to setting up your environment, training your first model, and evaluating your results. So this reporsitory has **two primary branches** 🌲:
 
-- **main**:  
-  Here you’ll find step-by-step guides, data loaders, training scripts, and inference examples so you can get a working model up and running in minutes.
+- [**main**](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main): Here you’ll find step-by-step guides, data loaders, training scripts, and inference examples so you can get a working model up and running in minutes.
 
-- **docker-template**:  
-  Designed for containerizing and submitting your final models to the Grand Challenge. This branch provides a Docker-based inference template, build/test/save scripts, and enforces all challenge restrictions (no network, CPU-only, `/tmp/` I/O, time limits, etc.).
+- [**docker-template**](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/docker-template): Designed for containerizing and submitting your final models to the Grand Challenge. This branch provides a Docker-based inference template, build/test/save scripts, and enforces all challenge restrictions (no network, CPU-only, `/tmp/` I/O, time limits, etc.).
 ---
 
 # How can this Repo help?
@@ -153,7 +151,6 @@ Each task folder is self-contained and contains only the scripts needed for that
   - **task3\_inference.py**: loads saved weights and runs inference on a single sample or batch.
   - **Usage**: ```Will need to add command for this Task as well.```
 
-```
 
 Each script is ready to run out of the box—just point it at your data directory and checkpoint folder to get started experimenting on that task.
 
@@ -222,7 +219,7 @@ python task2_prognosis.py
 
 ## 🔍 Inference & Evaluation
 
-To run inference on validation data:
+To run inference on validation data (**Should we give the inference command for each task**):
 
 ```bash
 cd Task2
