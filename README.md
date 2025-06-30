@@ -168,11 +168,11 @@ The ```**main**``` branch is used to build and test the baseline models for each
    Your container **must not** attempt any network access (HTTP, SSH, DNS, etc.). Any outgoing connection will cause automatic disqualification.
 
 2. **CPU-Only & Memory Constraints**  
-   - **No GPU**: Your code will run on CPU-only evaluation nodes.  
+   - **GPU**: Your code will run on NVIDIA T4 Tensor Core GPU with 16 GB VRAM. Please design the model so that it should be able to execute on this GPU.  
    - **Memory Limit**: Peak RAM usage must stay under **16 GB**.
 
 3. **Filesystem Write Permissions**  
-   All writes (models, logs, outputs) **must** go under `/tmp/`. Writing elsewhere on the filesystem will be ignored or blocked.
+   All writes (models, logs, outputs) **must** go under `/tmp/`. Writing elsewhere on the filesystem will be ignored or blocked. 
 
 4. **I/O Interface**  
    - **Input**: read exclusively from `/tmp/input/`  
@@ -180,7 +180,7 @@ The ```**main**``` branch is used to build and test the baseline models for each
    - **No Extra Files**: do not generate caches or logs in other directories.
 
 5. **Time Limit**  
-   Each task has a **15-minute** wall-clock limit. Any process running longer will be force-terminated.
+   Each task has a **15-minute** wall-clock limit. Any process running longer will be force-terminated. (@Ahmed Please confirm this if it should be added)
 
 6. **Submission Tips**  
    - **Local Validation**: always run `./do_test_run.sh` before packing.  
@@ -219,6 +219,34 @@ The ```**main**``` branch is used to build and test the baseline models for each
    ```
 
 3. **Upload to Sanity Check**:
+  In the HECKTOR challenge, we have three tasks (`Task 1 - Detection and Segmentation`, `Task 2 - Prognosis`, and `Task 3 - Classification`) and for each task, participants compete in three phases. So here, the task submission is divided into 3 phases:
+
+  - **Sanity Check Phase:** Consists of 3 images to ensure participants are familiar with the Grand Challenge platform and that their dockers run without errors. All teams must make their submission to this phase and will receive feedback on any errors.
+  - **Validation Phase:** Consists of approximately 50 images. All teams will submit up to 2 working dockers from the sanity check to this phase. Only the top 15 teams, as ranked by the evaluation metrics displayed on the public validation leaderboard, with valid submissions will proceed to Phase 3.
+  - **Testing Phase:** Consists of approximately 400 images. The teams will choose 1 of their 2 dockers from the validation phase to be submitted to the testing phase. The official ranking of the teams will be based solely on the testing phase results.
+
+
+  > **NOTE:** The participants will not receive detailed feedback during the testing phase except for error notifications.
+
+  Below here are some of the requirements for the submission to be valid. 
+
+  - **Task 1:** Docker containers should produce segmentation outputs as a single label mask per patient (1 for the predicted GTVp, 2 for GTVn, and 0 for the background) in `.mha` format. The resolution of this mask should be the same as the original CT resolution. Participants should ensure correct pixel spacing and origin with respect to the original reference frame. The mha files should be named `[PatientID].mha`, matching the patient names, e.g., `CHUB-001.mha`.
+  - **Task 2:** Docker containers should produce results as a JSON file with the prediction output of the model as a float. The output should be anti-concordant with the RFS in days (i.e., the model should output a predicted risk score).
+  - **Task 3:** Docker containers should produce results as a JSON file containing the output of the model (boolean). The output should be True for HPV positive and False for HPV negative.
+
+  To start with your submission, for each task on either phases, you have to navigate to the challenge ["Submission" page (TBA as I couldn't access it yet)](https://hecktor25.grand-challenge.org/evaluation/challenge/submissions/create/):
+
+  <p align="center">
+  <img src="/doc/submissions.JPG">
+  </p>
+
+  On the top region, you can select for which phase and task you are submitting your method. Assuming that we want to test it on the **Validation phase**, we select the "**Detection and Segmentation - Validation Test**" tab.
+
+  <p align="center">
+  <img src="/doc/submit_algorithm.jpg">
+  </p>
+
+  The most important thing here is to select the algorithm you created for this task from the "**Algorithms**" list. You can also write comments about the submitted algorithm. Also, if you are submitting an algorithm for one of the tasks in the **Testing Phase**, it is mandatory to past a link to the `ArXiv` manuscript in which you have explained the technical details of your algorithm in the **Preprint (Algorithm Description)** field. Finally, by clicking on the "**Save**" button you will submit your algorithm for evaluation on the challenges task. The process is the same for all the tasks and phases.
 
    * Log in to the challenge portal.
    * Navigate to **My Submissions** → **Upload Container**.
@@ -227,12 +255,7 @@ The ```**main**``` branch is used to build and test the baseline models for each
 # Reminders, Error Handling & Deadlines
 
 * **Submission deadline**: July 31, 2025, 23:59 UTC.
-* **Common errors**:
-
-  * *Permission denied*: Ensure volume mounts use correct permissions (`:ro` for inputs).
-  * *Timeout exceeded*: Optimize your model or reduce dataset size.
-  * *File not found*: Verify that inputs are in `/tmp/images`.
 * **Logging**: Capture logs by adding `-e DEBUG=1` or redirecting stdout to `/tmp/output/log.txt`.
-* **Support**: Post questions on the challenge forum under **"Docker Inference"**.
+* **Support**: Post questions on the challenge forum under **"Docker Inference"** (Or **can we have some other way around?**).
 
 Good luck with your submission!
