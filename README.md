@@ -152,7 +152,7 @@ Each task folder is self-contained and contains only the scripts needed for that
   - **Usage**: ```Will need to add command for this Task as well.```
 
 
-Each script is ready to run out of the box—just point it at your data directory and checkpoint folder to get started experimenting on that task.
+Each script is ready to run out of the box. Just point it at your data directory and checkpoint folder to get started experimenting on that task.
 
 > **Baseline Notice:**
 > This structure and the sample scripts are provided as a **baseline** to help you get started. You are **not required** to follow this exact layout or use the provided models. Feel free to reorganize files, swap in your own approaches, or design your own workflow that best suits your development style.
@@ -252,7 +252,7 @@ python python inference_script.py \
 </div>
 
 
-
+# To be Removed the lower part after finalization
 
 
 
