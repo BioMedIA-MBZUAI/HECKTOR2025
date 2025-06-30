@@ -122,6 +122,138 @@ If you require any further details about the dataset, please visit the [Dataset]
 
 
 
+---
+## 🗂️ Task Folders & Structure
+
+Each task folder is self-contained and contains only the scripts needed for that specific task. The finalized layout is:
+
+```text
+├── Task1/
+│   └── TBA                       # Placeholder—files to be added after Task1 is finalized
+├── Task2/
+│   ├── task2_prognosis.py        # Model training & evaluation for Task 2 (Prognosis)
+│   └── task2_inference.py        # Inference entry-point for Task 2
+└── Task3/
+    ├── task3_classification.py   # Model training & evaluation for Task 3 (Classification)
+    └── task3_inference.py        # Inference entry-point for Task 3
+```
+- **Task1/**
+
+  - **TBA**: will contain the finalized scripts for data loading, training, and inference once Task 1 is released.
+
+- **Task2/**
+
+  - **task2\_prognosis.py**: end-to-end training and validation script for Task 2’s prognosis model.
+  - **task2\_inference.py**: Inference script for HECKTOR survival prediction using ensemble model.
+  - **Usage**: ```python inference_script.py --csv test_data.csv --images_dir ./test_images --ensemble ensemble_model.pt --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl```
+
+- **Task3/**
+
+  - **task3\_classification.py**: end-to-end training and validation script for Task 3’s classification model.
+  - **task3\_inference.py**: loads saved weights and runs inference on a single sample or batch.
+  - **Usage**: ```Will need to add command for this Task as well.```
+
+```
+
+Each script is ready to run out of the box—just point it at your data directory and checkpoint folder to get started experimenting on that task.
+
+> **Baseline Notice:**
+> This structure and the sample scripts are provided as a **baseline** to help you get started. You are **not required** to follow this exact layout or use the provided models. Feel free to reorganize files, swap in your own approaches, or design your own workflow that best suits your development style.
+
+---
+## ⚙️ Environment Setup & Baseline
+
+1. **Checkout main branch**
+
+   ```bash
+   git clone https://github.com/BioMedIA-MBZUAI/HECKTOR2025.git
+   cd HECKTOR2025
+   git checkout main
+   ```
+2. **Create virtual environment**
+
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+3. **Install global requirements**
+
+   ```bash
+   pip install -r requirements-global.txt
+   ```
+4. **Per-task dependencies (If opt. for separate Req.txt file)**
+
+   ```bash
+   cd Task1
+   pip install -r requirements.txt
+   cd ../Task2 && pip install -r requirements.txt
+   cd ../Task3 && pip install -r requirements.txt
+   ```
+5. **Baseline Models**
+
+  - Pretrained checkpoints live under each `/tmp/AddPath`.
+  - They are already loaded in the baseline files for each task but you can also load by giving the path as an argument.
+
+---
+
+## 🎯 Training Your Model
+
+Inside **TaskX/**:
+
+```bash
+cd Task2
+# Train for 15 iterations
+python task2_prognosis.py 
+```
+
+<!-- * **Arguments** (`train.py`)
+
+  * `--data-dir`: path to `data/`
+  * `--save-dir`: where to write checkpoints
+  * `--lr`, `--batch-size`, `--epochs`, etc. -->
+
+<!-- * **Output:**
+
+  * Trained weights in `checkpoint/`
+  * Training logs printed to console -->
+
+---
+
+
+## 🔍 Inference & Evaluation
+
+To run inference on validation data:
+
+```bash
+cd Task2
+python python inference_script.py \
+  --csv test_data.csv \
+  --images_dir ./test_images \
+  --ensemble ensemble_model.pt \
+  --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl \
+  --model-path checkpoint/best.pth \
+  --input-path ../data/test/sample_001.png \
+  --output-path results/sample_001_out.json
+```
+
+- **Metrics:** We use **IoU**, **F1-score**, and **Accuracy**. (**Should we add the metrics**)
+
+---
+
+## 🌟 Next Steps & Tips
+
+* **Data Augmentation:** Explore and try more aggressive transformations on the dataset.
+* **Model Architecture:** Swap in a stronger backbone (ResNet → Swin Transformer).
+* **Hyperparameter Tuning:** Adjust learning rates, optimizers, schedulers.
+* **Ensembling:** Combine outputs from multiple checkpoints.
+* **Semi-Supervised Learning:** Leverage unlabelled test data for pseudo-labeling.
+
+---
+
+<div align="center">
+  _You’re now ready to dive in and start building your own models.!_  
+</div>
+
 
 
 
