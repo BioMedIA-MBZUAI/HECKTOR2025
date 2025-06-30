@@ -1,6 +1,9 @@
-{
-    "Age": 50,
+{   "CenterID": 5,
+    "Age": 56,
     "Gender": 1,
-    "Treatment": 1,
+    "Tobacco Consumption": 0,
+    "Alcohol Consumption": 1,
+    "Performance Status": 0,
+    "Treatment": 0,
     "M-stage": "M0"
 }

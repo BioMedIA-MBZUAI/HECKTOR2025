@@ -8,3 +8,4 @@ nibabel>=3.2.0
 scikit-survival>=0.2.0
 icare
 optree>=0.13.0
+scikit-image>=0.19.0
