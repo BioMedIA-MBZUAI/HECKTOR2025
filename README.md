@@ -1,4 +1,9 @@
-# HECKTOR2025 
+# HECKTOR2025 - Challenge
+
+<p align="center">
+  <img src="/assets/images/HECKTOR-main.jpeg">
+</p>
+---
 
 This repository contains instructions and examples for creating a valid docker image for the [HECKTOR2025 challenge](https://hecktor25.grand-challenge.org/). 
 
