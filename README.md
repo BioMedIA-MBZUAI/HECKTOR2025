@@ -23,7 +23,7 @@ This branch is the first thing you see when you click our challenge Github link.
 ```
 
 ---
-## 🚀 About the HECKTOR'25 Challenge
+# 🚀 About the HECKTOR'25 Challenge
 Head and Neck (H&N) cancers are among the most common cancers worldwide (5th leading cancer by incidence) [Parkin et al. 2005]. Radiotherapy combined with cetuximab has been established as a standard treatment [Bonner et al. 2010]. However, locoregional failures remain a major challenge and occur in up to 40% of patients in the first two years after the treatment [Chajon et al. 2013]. By focusing on metabolic and morphological tissue properties, respectively, PET and CT modalities include complementary and synergistic information for cancerous lesion segmentation as well as tumor characteristics potentially relevant for patient outcome prediction and HPV status diagnosis, in addition to usual clinical variables (e.g., age, gender, treatment modality, etc.). Modern image analysis (radiomics, machine, and deep learning) methods must be developed and, more importantly, rigorously evaluated, in order to extract and leverage this information. That is why, HEad and neCK TumOR (HECKTOR) Lesion Segmentation, Diagnosis and Prognosis challenge has been introduced in last few years. 
 
 Following the success of the first editions of the HECKTOR challenge from 2020 through 2022, this challenge will be presented at the 28th International Conference on Medical Image Computing and Computer-Assisted Intervention (MICCAI) 2025 in Daejeon, South Korea. This year, three tasks are proposed where the participants can choose to participate in any or all tasks. Participants will train models on our provided datasets, submit predictions, and compete on different metrics and robustness. Deadlines and leaderboard details are on the [challenge website](https://hecktor25.grand-challenge.org/timeline/). 
@@ -50,7 +50,7 @@ Following the success of the first editions of the HECKTOR challenge from 2020 t
 
 --- -->
 
-## 📑 Table of Contents
+# 📑 Table of Contents
 
 1. [Getting the Data](#-getting-the-data)  
 2. [Task Folders & Structure](#-task-folders--structure)  
@@ -61,7 +61,7 @@ Following the success of the first editions of the HECKTOR challenge from 2020 t
 
 ---
 
-## 📥 Getting the Data
+# 📥 Getting the Data
 
 1. **Download:** Go to the [Dataset Section](https://hecktor25.grand-challenge.org/dataset/) on challenge website and follow the instructions provided to download the dataset. 
 
@@ -121,13 +121,19 @@ If you require any further details about the dataset, please visit the [Dataset]
 
 
 ---
-## 🗂️ Task Folders & Structure
+# 🗂️ Task Folders & Structure
 
 Each task folder is self-contained and contains only the scripts needed for that specific task. The finalized layout is:
 
 ```text
 ├── Task1/
-│   └── TBA                       # Placeholder—files to be added after Task1 is finalized
+│   ├── config/                  # Contains configuration files
+│   ├── evaluation/              # inference_evaluator.py to compute metrics
+│   ├── models/                  # supporting files for different models
+│   ├── scripts/                 # training and inference scripts
+│   ├── utils/                   # Shared helper functions (input/output, logging, visualization tools, etc.)
+│   ├── README.md                # Task1-specific README that explains how to build/run for Task 1
+│   └── requirements.txt         # dependencies for Task 1
 ├── Task2/
 │   ├── task2_prognosis.py        # Model training & evaluation for Task 2 (Prognosis)
 │   └── task2_inference.py        # Inference entry-point for Task 2
@@ -158,7 +164,7 @@ Each script is ready to run out of the box. Just point it at your data directory
 > This structure and the sample scripts are provided as a **baseline** to help you get started. You are **not required** to follow this exact layout or use the provided models. Feel free to reorganize files, swap in your own approaches, or design your own workflow that best suits your development style.
 
 ---
-## ⚙️ Environment Setup & Baseline
+# ⚙️ Environment Setup & Baseline
 
 1. **Checkout main branch**
 
@@ -193,7 +199,7 @@ Each script is ready to run out of the box. Just point it at your data directory
 
 ---
 
-## 🎯 Training Your Model
+# 🎯 Training Your Model
 
 Inside **TaskX/**:
 
@@ -217,7 +223,7 @@ python task2_prognosis.py
 ---
 
 
-## 🔍 Inference & Evaluation
+# 🔍 Inference & Evaluation
 
 To run inference on validation data (**Should we give the inference command for each task**):
 
@@ -237,7 +243,7 @@ python python inference_script.py \
 
 ---
 
-## 🌟 Next Steps & Tips
+# 🌟 Next Steps & Tips
 
 * **Data Augmentation:** Explore and try more aggressive transformations on the dataset.
 * **Model Architecture:** Swap in a stronger backbone (ResNet → Swin Transformer).
@@ -259,7 +265,7 @@ python python inference_script.py \
 4. [Video Tutorial](#video_tutorial) -->
 
 
-## Basic Instructions <a name="basic_instructions"></a>
+# Basic Instructions <a name="basic_instructions"></a>
 
 
 
@@ -272,8 +278,6 @@ python python inference_script.py \
   5. If you test your own container you can see error messages the Results page of your algorithm. When running a sanity check we will provide the error messages for them.
 
 - This is a [demo starter kit](https://github.com/DIAGNijmegen/demo-challenge-pack/tree/main?tab=readme-ov-file#now-what) that includes steps to be taken to get started with the challenge pack effectively.
-- In case you need help in following a video, then [video1](https://www.youtube.com/watch?v=45BCMquFk70) and [video2](https://www.youtube.com/watch?v=Zkhrwark3bg) can be helpful which shows how to share your containers.
-
 
 <!-- ## Creating Docker Container <a name="creating_docker"></a>
 
