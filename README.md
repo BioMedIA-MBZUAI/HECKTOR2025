@@ -205,20 +205,20 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 
 # Saving and Uploading Containers
 
-1. **Commit the running container** (after testing):
+<!-- 1. **Commit the running container** (after testing):
 
    ```bash
    CONTAINER_ID=$(docker ps -lq)
    docker commit $CONTAINER_ID submission-image
-   ```
+   ``` -->
 
-2. **Save to tarball**:
+1. **Save to tarball**:
 
    ```bash
-   docker save submission-image -o my_submission.tar
+   ./do_save.sh
    ```
 
-3. **Upload to Sanity Check**:
+2. **Upload to Sanity Check**:
 
    In the HECKTOR challenge, we have three tasks (`Task 1 - Detection and Segmentation`, `Task 2 - Prognosis`, and `Task 3 - Classification`) and for each task, participants compete in three phases. So here, the task submission is divided into 3 phases:
 
@@ -229,25 +229,19 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 
   > **NOTE:** The participants will not receive detailed feedback during the testing phase except for error notifications.
 
-  Below here are some of the requirements for the submission to be valid. 
-
-  - **Task 1:** Docker containers should produce segmentation outputs as a single label mask per patient (1 for the predicted GTVp, 2 for GTVn, and 0 for the background) in `.mha` format. The resolution of this mask should be the same as the original CT resolution. Participants should ensure correct pixel spacing and origin with respect to the original reference frame. The mha files should be named `[PatientID].mha`, matching the patient names, e.g., `CHUB-001.mha`.
-  - **Task 2:** Docker containers should produce results as a JSON file with the prediction output of the model as a float. The output should be anti-concordant with the RFS in days (i.e., the model should output a predicted risk score).
-  - **Task 3:** Docker containers should produce results as a JSON file containing the output of the model (boolean). The output should be True for HPV positive and False for HPV negative.
-
-  To start with your submission, for each task on either phases, you have to navigate to the challenge ["Submission" page (TBA as I couldn't access it yet)](https://hecktor25.grand-challenge.org/evaluation/challenge/submissions/create/):
+  We also provided some of the requirements for the submission to be valid which can be found on the [Submission webpage](https://hecktor25.grand-challenge.org/submission-instructions/). To start with your submission, for each task on either phases, login to the [Grand Challenge](https://hecktor25.grand-challenge.org/) and click on the link [here](https://hecktor25.grand-challenge.org/evaluation/sanity-check-task-1/submissions/create/). In order to proceed with the submission, please do make sure to follow the guidelines given in ["Submission Guidelines"](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/blob/main/doc/submission-guidelines.md) with visual examples:
 
   <p align="center">
-  <img src="/assets/images/submissions.JPG">
+  <img src="/assets/images/Submission-Tab-1.png">
   </p>
 
-  On the top region, you can select for which phase and task you are submitting your method. Assuming that we want to test it on the **Validation phase**, we select the "**Detection and Segmentation - Validation Test**" tab.
+  On the top region, you can select for which phase and task you are submitting your method. Assuming that we want to test it for the Task 1 on the **Sanity Check Phase**, we select the "**Sanity Check - Task 1**" tab and select the uploaded algorithm from the drop-down list as shown below:
 
   <p align="center">
-  <img src="/assets/images/submit_algorithm.jpg">
+  <img src="/assets/images/Submission-Tab-2.png">
   </p>
 
-  The most important thing here is to select the algorithm you created for this task from the "**Algorithms**" list. You can also write comments about the submitted algorithm. Also, if you are submitting an algorithm for one of the tasks in the **Testing Phase**, it is mandatory to past a link to the `ArXiv` manuscript in which you have explained the technical details of your algorithm in the **Preprint (Algorithm Description)** field. Finally, by clicking on the "**Save**" button you will submit your algorithm for evaluation on the challenges task. The process is the same for all the tasks and phases.
+  Finally, by clicking on the "**Save**" button you will submit your algorithm for evaluation on the challenges task. The process is the same for all the tasks and phases.
 
    * Log in to the challenge portal.
    * Navigate to **My Submissions** → **Upload Container**.
@@ -255,8 +249,9 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 
 # Reminders, Error Handling & Deadlines
 
-* **Submission deadline**: July 31, 2025, 23:59 UTC.
+* **Validation Submission deadline**: August 10, 2025, 23:59 UTC.
+* **Test Submission deadline**: July 31, 2025, 23:59 UTC.
 * **Logging**: Capture logs by adding `-e DEBUG=1` or redirecting stdout to `/tmp/output/log.txt`.
-* **Support**: Post questions on the challenge forum under **"Docker Inference"** (Or **can we have some other way around?**).
+* **Support**: Post questions on the [Challenge Forum](https://grand-challenge.org/forums/forum/head-and-neck-tumor-lesion-segmentation-diagnosis-and-prognosis-767/) under **Forum** tab Or can send an email at ```[hecktor.challenge@gmail.com](hecktor.challenge@gmail.com)```.
 
 Good luck with your submission!
