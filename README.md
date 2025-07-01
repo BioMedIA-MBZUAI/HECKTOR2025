@@ -350,6 +350,16 @@ Each of these directories is accompanied by a `README.md` file in which we have 
 For more information, please have a look at our [tutorial video (TBA)](https://conic-challenge.grand-challenge.org/Submission/). -->
 
 ---
+# References
+
+- [Bonner et al. 2010] Bonner, James A., Paul M. Harari, Jordi Giralt, Roger B. Cohen, Christopher U. Jones, Ranjan K. Sur, David Raben, et al. 2010. “Radiotherapy plus Cetuximab for Locoregionally Advanced Head and Neck Cancer: 5-Year Survival Data from a Phase 3 Randomised Trial, and Relation between Cetuximab-Induced Rash and Survival.” The Lancet Oncology 11 (1): 21–28.
+
+- [Chajon et al. 2013] Chajon E, et al. "Salivary gland-sparing other than parotid-sparing in definitive head-and-neck intensity-modulated radiotherapy does not seem to jeopardize local control." Radiation Oncology 8.1 (2013): 1-9.
+
+- [Parkin et al. 2005] Parkin DM, et al. "Global cancer statistics, 2002." CA: a cancer journal for clinicians 55.2 (2005): 74-108.
+
+
+---
 <div align="center">
   _You’re now ready to dive in and start building your own models.!_  
 </div>
