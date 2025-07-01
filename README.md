@@ -20,11 +20,11 @@ This repository contains the submission template and instructions for the [Grand
 ---
 # 📑 Table of Contents
 
-* [Installation](#installation)
-* [Baseline Inference](#baseline-inference)
-* [Restrictions and Submission Tips](#restrictions-and-submission-tips)
-* [Saving and Uploading Containers](#saving-and-uploading-containers)
-* [Reminders, Error Handling & Deadlines](#reminders-error-handling--deadlines)
+* 🛠️ [Installation](#installation)
+* 🤖 [Baseline Inference](#baseline-inference)
+* <img src="assets/logos/restrictions.svg" width="24" alt="⚠️"/> [Restrictions and Submission Tips](#restrictions-and-submission-tips)
+* 💾 [Saving and Uploading Containers](#saving-and-uploading-containers)
+* 🔔 [Reminders, Error Handling & Deadlines](#reminders-error-handling--deadlines)
 
 ---
 # 🛠️ Installation
