@@ -319,7 +319,7 @@ To run inference on validation data, use the below command accordingly for each 
 4. [Video Tutorial](#video_tutorial) -->
 
 
-# Basic Instructions <a name="basic_instructions"></a>
+# 📋 Basic Instructions <a name="basic_instructions"></a>
 
 
 
@@ -350,7 +350,7 @@ Each of these directories is accompanied by a `README.md` file in which we have 
 For more information, please have a look at our [tutorial video (TBA)](https://conic-challenge.grand-challenge.org/Submission/). -->
 
 ---
-# References
+# 📚 References
 
 - [Bonner et al. 2010] Bonner, James A., Paul M. Harari, Jordi Giralt, Roger B. Cohen, Christopher U. Jones, Ranjan K. Sur, David Raben, et al. 2010. “Radiotherapy plus Cetuximab for Locoregionally Advanced Head and Neck Cancer: 5-Year Survival Data from a Phase 3 Randomised Trial, and Relation between Cetuximab-Induced Rash and Survival.” The Lancet Oncology 11 (1): 21–28.
 
