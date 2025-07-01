@@ -349,7 +349,7 @@ Each of these directories is accompanied by a `README.md` file in which we have 
 <!-- ## Video Tutorial <a name="video_tutorial"></a>
 For more information, please have a look at our [tutorial video (TBA)](https://conic-challenge.grand-challenge.org/Submission/). -->
 
-
+---
 <div align="center">
   _You’re now ready to dive in and start building your own models.!_  
 </div>
