@@ -29,7 +29,7 @@ RESOURCE_PATH = Path("resources")
 
 # Import the necessary functions from the resources
 from resources.model import MultiModalResNet
-from resources.hecktor_inference import prepare_input_tensor, preprocess_ehr, run_inference
+from resources.hecktor_inference import prepare_input_tensor, preprocess_ehr, run_inference, resample_images, crop_neck_region
 import torch
 from joblib import load
 
@@ -49,7 +49,17 @@ def run():
     _show_torch_cuda_info()
 
     # Preprocess the inputs
-    x_img = prepare_input_tensor(input_ct_image, input_pet_image)
+    ct_resampled_array, pet_resampled_array = resample_images(
+        ct_array=input_ct_image,
+        pet_array=input_pet_image,
+    )
+
+    ct_cropped, pet_cropped = crop_neck_region(
+        ct_array=ct_resampled_array,
+        pet_array=pet_resampled_array,
+    )
+    
+    x_img = prepare_input_tensor(ct_cropped, pet_cropped)
 
     scaler = load(RESOURCE_PATH / "checkpoints/scaler.joblib")
     ohe = load(RESOURCE_PATH / "checkpoints/ohe.joblib")
