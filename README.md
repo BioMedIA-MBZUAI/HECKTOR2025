@@ -127,13 +127,13 @@ Each task folder is self-contained and contains only the scripts needed for that
 
 ```text
 ├── Task1/
-│   ├── config/                  # Contains configuration files
-│   ├── evaluation/              # inference_evaluator.py to compute metrics
-│   ├── models/                  # supporting files for different models
-│   ├── scripts/                 # training and inference scripts
-│   ├── utils/                   # Shared helper functions (input/output, logging, visualization tools, etc.)
-│   ├── README.md                # Task1-specific README that explains how to build/run for Task 1
-│   └── requirements.txt         # dependencies for Task 1
+│   ├── config/                   # Contains configuration files
+│   ├── evaluation/               # inference_evaluator.py to compute metrics
+│   ├── models/                   # supporting files for different models
+│   ├── scripts/                  # training and inference scripts
+│   ├── utils/                    # Shared helper functions (input/output, logging, visualization tools, etc.)
+│   ├── README.md                 # Task1-specific README that explains how to build/run for Task 1
+│   └── requirements.txt          # dependencies for Task 1
 ├── Task2/
 │   ├── task2_prognosis.py        # Model training & evaluation for Task 2 (Prognosis)
 │   └── task2_inference.py        # Inference entry-point for Task 2
@@ -172,6 +172,7 @@ Each task folder is self-contained and contains only the scripts needed for that
 
 Each script is ready to run out of the box. Just point it at your data directory and checkpoint folder to get started experimenting on that task.
 
+---
 > **Baseline Notice:**
 > This structure and the sample scripts are provided as a **baseline** to help you get started. You are **not required** to follow this exact layout or use the provided models. Feel free to reorganize files, swap in your own approaches, or design your own workflow that best suits your development style.
 
@@ -194,7 +195,7 @@ Each script is ready to run out of the box. Just point it at your data directory
 3. **Install global requirements**
 
    ```bash
-   pip install -r requirements-global.txt
+   pip install -r requirements-global.txt (If we have any, else can remove)
    ```
 4. **Per-task dependencies (If opt. for separate Req.txt file)**
 
@@ -206,20 +207,36 @@ Each script is ready to run out of the box. Just point it at your data directory
    ```
 5. **Baseline Models**
 
-  - Pretrained checkpoints live under each `/tmp/AddPath`.
-  - They are already loaded in the baseline files for each task but you can also load by giving the path as an argument.
+    - Pretrained checkpoints live under each `/tmp/AddPath`.
+    - They are already loaded in the baseline files for each task but you can also load by giving the path as an argument.
 
 ---
 
 # 🎯 Training Your Model
 
-Inside **TaskX/**:
+For each **TaskX/**, please run the training command accordingly as given below:
+#### Task 1
+  ```bash
+  cd Task1/
+  # Train for unet3d model
+  python scripts/train.py --config unet3d 
+  ```
 
-```bash
-cd Task2
-# Train for 15 iterations
-python task2_prognosis.py 
-```
+
+#### Task 2
+  ```bash
+  cd Task2/
+  # Train for 15 iterations
+  python task2_prognosis.py 
+  ```
+
+#### Task 3
+  ```bash
+  cd Task3/
+  # Train for 10 iterations
+  python task3_classification.py 
+  ```
+
 
 <!-- * **Arguments** (`train.py`)
 
@@ -239,7 +256,7 @@ python task2_prognosis.py
 
 To run inference on validation data, use the below command accordingly for each task:
 
-- **Task 1**:
+#### **Task 1**:
   ```bash
   cd Task1/
   # Inference on entire directory
@@ -257,7 +274,7 @@ To run inference on validation data, use the below command accordingly for each 
       --output_dir /path/to/output
   ```
 
-- **Task 2**:
+#### **Task 2**:
   ```bash
   cd Task2/
   python python inference_script.py \
@@ -270,7 +287,7 @@ To run inference on validation data, use the below command accordingly for each 
     --output-path results/sample_001_out.json
   ```
 
-- **Task 3**:
+#### **Task 3**:
   ```bash
   cd Task3/
   Will need to add command for this Task as well.
