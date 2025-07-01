@@ -14,7 +14,7 @@ In order to submit your algorithm, you first have to add it to the Grand-Challen
   <img src="/doc/images/Add-Algorithm.png">
 </p> 
 
-- Then you will be directed to the "Create Algorithm" page where you have to choose the phase for which you are creating an algorithm using a drop-down list. Select the phase and click on "Create an Algorithm for this Phase". For more details on different phases, please click [here](#different_phases)
+- Then you will be directed to the "Create Algorithm" page where you have to choose the phase for which you are creating an algorithm using a drop-down list. Select the phase and click on "Create an Algorithm for this Phase". For more details on different phases, please click [here](https://hecktor25.grand-challenge.org/submission-instructions/)
 
 <p align="center">
   <img src="/doc/images/Phases.png">
