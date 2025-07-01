@@ -1,6 +1,13 @@
-# HECKTOR2025 
+# HECKTOR2025 - Challenge
+
+<p align="center">
+<img src="/assets/images/Submission-Tab-1.png">
+</p>
+
 
 This repository contains instructions and examples for creating a valid docker image for the [HECKTOR2025 challenge](https://hecktor25.grand-challenge.org/). 
+
+---
 
 # <img src="assets/logos/countdown.png" width="24" alt="⏳"/> Submission Countdown
 Animation TBA
