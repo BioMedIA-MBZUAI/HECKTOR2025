@@ -143,19 +143,23 @@ Each task folder is self-contained and contains only the scripts needed for that
 ```
 - **Task1/**
 
-  - **TBA**: will contain the finalized scripts for data loading, training, and inference once Task 1 is released.
+  - **scripts/inference.py**: Evaluation script for Task 1 segmentation model.
+  - **Usage**:
+    ```
 
 - **Task2/**
 
   - **task2\_prognosis.py**: end-to-end training and validation script for Task 2’s prognosis model.
   - **task2\_inference.py**: Inference script for HECKTOR survival prediction using ensemble model.
-  - **Usage**: ```python inference_script.py --csv test_data.csv --images_dir ./test_images --ensemble ensemble_model.pt --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl```
+  - **Usage**: 
+    ```python inference_script.py --csv test_data.csv --images_dir ./test_images --ensemble ensemble_model.pt --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl```
 
 - **Task3/**
 
   - **task3\_classification.py**: end-to-end training and validation script for Task 3’s classification model.
   - **task3\_inference.py**: loads saved weights and runs inference on a single sample or batch.
-  - **Usage**: ```Will need to add command for this Task as well.```
+  - **Usage**: 
+    ```Will need to add command for this Task as well.```
 
 
 Each script is ready to run out of the box. Just point it at your data directory and checkpoint folder to get started experimenting on that task.
