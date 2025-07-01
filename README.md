@@ -1,7 +1,7 @@
 # HECKTOR2025 - Challenge
 
 <p align="center">
-<img src="/assets/images/Submission-Tab-1.png">
+<img src="/assets/images/HECKTOR-main.jpeg">
 </p>
 
 
