@@ -111,29 +111,31 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 
    ```text
    ├── Task1/
-   │   ├── resources/       # Place your model files here
-   │   ├── requirements.txt # Modify only to add new packages
-   │   └── ...
+   │    ├── resources/       # Place your model files here
+   │    ├── requirements.txt # Modify only to add new packages
+   │    └── ...
    ├── Task2/
-   │   └── resources/
+   │    ├── resources/
+   |    └── ...
    ├── Task3/
-   │   └── resources/
-   ├── Dockerfile.template # Base Dockerfile for reference
-   ├── do_build.sh         # Script to build container
-   ├── do_test_run.sh      # Script to test container locally
-   ├── do_save.sh          # Script to save container as tarball
-   └── inference.py        # Entry point: loads models, runs inference
+   │    ├── resources/
+   │    ├── Dockerfile.template # Base Dockerfile for reference
+   │    ├── do_build.sh         # Script to build container
+   │    ├── do_test_run.sh      # Script to test container locally
+   │    ├── do_save.sh          # Script to save container as tarball
+   │    └── inference.py        # Entry point: loads models, runs inference
+   |    └── ...
    ```
 
 2. **Model Files and Packages**
 
-   * Place all model weights, configuration files, or auxiliary code inside the `resources/` folder of the corresponding Task directory as this is the only directory where you can place your supporting files.
-   * You **may** update `requirements.txt` within each Task folder to install any additional Python packages needed by your model.
-   * **Do NOT** modify any other files or directories.
+  * Place all model weights, configuration files, or auxiliary code inside the `resources/` folder of the corresponding Task directory as this is the only directory where you can place your supporting files.
+  * You **may** update `requirements.txt` within each Task folder to install any additional Python packages needed by your model.
+  * **Do NOT** modify any other files or directories.
 
 3. **Working Directory**
 
-   * All input and output files during inference must be read from or written to the `/tmp/` directory inside the container.
+  * All input and output files during inference must be read from or written to the `/tmp/` directory inside the container.
 
 4. **Build the Container**
   * To build your container, you can run ```do_build.sh``` file.
@@ -174,28 +176,28 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 # <img src="assets/logos/restrictions.svg" width="24" alt="⚠️"/> Grand Challenge Restrictions & Submission Tips
 
 1. **Offline Execution Only**  
-   Your container **must not** attempt any network access (HTTP, SSH, DNS, etc.). Any outgoing connection will cause automatic disqualification.
+  Your container **must not** attempt any network access (HTTP, SSH, DNS, etc.). Any outgoing connection will cause automatic disqualification.
 
 2. **CPU-Only & Memory Constraints**  
-   - **GPU**: Your code will run on NVIDIA T4 Tensor Core GPU with 16 GB VRAM. Please design the model so that it should be able to execute on this GPU.  
-   - **Memory Limit**: Peak RAM usage must stay under **16 GB**.
+  - **GPU**: Your code will run on NVIDIA T4 Tensor Core GPU with 16 GB VRAM. Please design the model so that it should be able to execute on this GPU.  
+  - **Memory Limit**: Peak RAM usage must stay under **16 GB**.
 
 3. **Filesystem Write Permissions**  
    All writes (models, logs, outputs) **must** go under `/tmp/`. Writing elsewhere on the filesystem will be ignored or blocked. 
 
 4. **I/O Interface**  
-   - **Input**: read exclusively from `/tmp/input/`  
-   - **Output**: write exclusively to `/tmp/output/`  
-   - **No Extra Files**: do not generate caches or logs in other directories.
+  - **Input**: read exclusively from `/tmp/input/`  
+  - **Output**: write exclusively to `/tmp/output/`  
+  - **No Extra Files**: do not generate caches or logs in other directories.
 
 5. **Time Limit**  
    Each task has a **15-minute** wall-clock limit. Any process running longer will be force-terminated. (@Ahmed Please confirm this if it should be added)
 
 6. **Submission Tips**  
-   - **Local Validation**: always run `./do_test_run.sh` before packing.  
-   - **Save Your Container**: use `./do_save.sh` to generate a `<task>_submission.tar.gz` (max **2 GB**).  
-   - **Naming Convention**: name archives as `submission_task1.tar.gz`, `submission_task2.tar.gz`, etc.  
-   - **Double-Check**: ensure `TaskX/resources/` contains all model artifacts and updated `requirements.txt`.
+  - **Local Validation**: always run `./do_test_run.sh` before packing.  
+  - **Save Your Container**: use `./do_save.sh` to generate a `<task>_submission.tar.gz` (max **2 GB**).  
+  - **Naming Convention**: name archives as `submission_task1.tar.gz`, `submission_task2.tar.gz`, etc.  
+  - **Double-Check**: ensure `TaskX/resources/` contains all model artifacts and updated `requirements.txt`.
 
 7. **Common Error Messages**  
    | Error Text                          | Likely Cause                                    | Fix                                 |
@@ -231,9 +233,9 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 
    In the HECKTOR challenge, we have three tasks (`Task 1 - Detection and Segmentation`, `Task 2 - Prognosis`, and `Task 3 - Classification`) and for each task, participants compete in three phases. So here, the task submission is divided into 3 phases:
 
-  - **Sanity Check Phase:** Consists of 3 images to ensure participants are familiar with the Grand Challenge platform and that their dockers run without errors. All teams must make their submission to this phase and will receive feedback on any errors.
-  - **Validation Phase:** Consists of approximately 50 images. All teams will submit up to 2 working dockers from the sanity check to this phase. Only the top 15 teams, as ranked by the evaluation metrics displayed on the public validation leaderboard, with valid submissions will proceed to Phase 3.
-  - **Testing Phase:** Consists of approximately 400 images. The teams will choose 1 of their 2 dockers from the validation phase to be submitted to the testing phase. The official ranking of the teams will be based solely on the testing phase results.
+    - **Sanity Check Phase:** Consists of 3 images to ensure participants are familiar with the Grand Challenge platform and that their dockers run without errors. All teams must make their submission to this phase and will receive feedback on any errors.
+    - **Validation Phase:** Consists of approximately 50 images. All teams will submit up to 2 working dockers from the sanity check to this phase. Only the top 15 teams, as ranked by the evaluation metrics displayed on the public validation leaderboard, with valid submissions will proceed to Phase 3.
+    - **Testing Phase:** Consists of approximately 400 images. The teams will choose 1 of their 2 dockers from the validation phase to be submitted to the testing phase. The official ranking of the teams will be based solely on the testing phase results.
 
 
   > **NOTE:** The participants will not receive detailed feedback during the testing phase except for error notifications.
