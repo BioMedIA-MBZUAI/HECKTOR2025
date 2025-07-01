@@ -6,11 +6,11 @@ This repository contains instructions and examples for creating a valid docker i
 Animation TBA
 
 
-# About
+# ℹ️ About
 
 This repository contains the submission template and instructions for the [Grand Challenge 2025](https://hecktor25.grand-challenge.org/hecktor25/) docker-based inference task. Follow this guide to install Docker, run the baseline inference, observe challenge restrictions, save your container, and prepare your submission.
 
-# Table of Contents
+# 📑 Table of Contents
 
 * [Installation](#installation)
 * [Baseline Inference](#baseline-inference)
@@ -18,7 +18,7 @@ This repository contains the submission template and instructions for the [Grand
 * [Saving and Uploading Containers](#saving-and-uploading-containers)
 * [Reminders, Error Handling & Deadlines](#reminders-error-handling--deadlines)
 
-# Installation
+# 🛠️ Installation
 
 ## Windows
 
@@ -94,7 +94,7 @@ This repository contains the submission template and instructions for the [Grand
     - make sure you have access to git by running ```git --version```
 
 
-# Baseline Inference
+# 🤖 Baseline Inference
 
 The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is used to build and test the baseline models for each task. Once the models are ready, you can follow the following steps to perform inference using docker. Below here is a structure of the ```template-docker``` branch. We support three separate tasks: **Task1**, **Task2**, and **Task3**. For each task, you should have a separate dedicated model under its folder.
 
@@ -203,7 +203,7 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 
 
 
-# Saving and Uploading Containers
+# 💾 Saving and Uploading Containers
 
 <!-- 1. **Commit the running container** (after testing):
 
@@ -247,11 +247,11 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
    * Navigate to **My Submissions** → **Upload Container**.
    * Select `my_submission.tar` and submit.
 
-# Reminders, Error Handling & Deadlines
+# 🔔 Reminders, Error Handling & Deadlines
 
 * **Validation Submission deadline**: August 10, 2025, 23:59 UTC.
 * **Test Submission deadline**: July 31, 2025, 23:59 UTC.
 * **Logging**: Capture logs by adding `-e DEBUG=1` or redirecting stdout to `/tmp/output/log.txt`.
 * **Support**: Post questions on the [Challenge Forum](https://grand-challenge.org/forums/forum/head-and-neck-tumor-lesion-segmentation-diagnosis-and-prognosis-767/) under **Forum** tab Or can send an email at ```[hecktor.challenge@gmail.com](hecktor.challenge@gmail.com)```.
 
-Good luck with your submission!
+# 🎉 Good luck with your submission!
