@@ -129,37 +129,37 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 
 2. **Model Files and Packages**
 
-  * Place all model weights, configuration files, or auxiliary code inside the `resources/` folder of the corresponding Task directory as this is the only directory where you can place your supporting files.
-  * You **may** update `requirements.txt` within each Task folder to install any additional Python packages needed by your model.
-  * **Do NOT** modify any other files or directories.
+    * Place all model weights, configuration files, or auxiliary code inside the `resources/` folder of the corresponding Task directory as this is the only directory where you can place your supporting files.
+    * You **may** update `requirements.txt` within each Task folder to install any additional Python packages needed by your model.
+    * **Do NOT** modify any other files or directories.
 
 3. **Working Directory**
 
-  * All input and output files during inference must be read from or written to the `/tmp/` directory inside the container.
+    * All input and output files during inference must be read from or written to the `/tmp/` directory inside the container.
 
 4. **Build the Container**
-  * To build your container, you can run ```do_build.sh``` file.
+   * To build your container, you can run ```do_build.sh``` file.
    ```bash
    # From repo root
    ./do_build.sh           # builds an image tagged `challenge:<branch>`
    ```
 
 5. **Local Test Run**
-  * The ```do_test_run.sh``` file can be used to test the container on local machines before submitting the finalized version. 
+    * The ```do_test_run.sh``` file can be used to test the container on local machines before submitting the finalized version. 
    ```bash
    # Runs inference locally mounting /tmp data
    ./do_test_run.sh
    ```
 
 6. **Save Container**
-  * You can use ```do_save.sh``` file to save your docker container.
+    * You can use ```do_save.sh``` file to save your docker container.
    ```bash
    ./do_save.sh
    ```
 
 7. **Performing Inference**
 
-  * `inference.py` is the entry point script executed at container runtime. You can implement or call your model-loading and prediction code here.
+    * `inference.py` is the entry point script executed at container runtime. You can implement or call your model-loading and prediction code here.
 
 
    <!-- * Inputs must mount to `/tmp/images`
@@ -179,25 +179,25 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
   Your container **must not** attempt any network access (HTTP, SSH, DNS, etc.). Any outgoing connection will cause automatic disqualification.
 
 2. **CPU-Only & Memory Constraints**  
-  - **GPU**: Your code will run on NVIDIA T4 Tensor Core GPU with 16 GB VRAM. Please design the model so that it should be able to execute on this GPU.  
-  - **Memory Limit**: Peak RAM usage must stay under **16 GB**.
+    - **GPU**: Your code will run on NVIDIA T4 Tensor Core GPU with 16 GB VRAM. Please design the model so that it should be able to execute on this GPU.  
+    - **Memory Limit**: Peak RAM usage must stay under **16 GB**.
 
 3. **Filesystem Write Permissions**  
    All writes (models, logs, outputs) **must** go under `/tmp/`. Writing elsewhere on the filesystem will be ignored or blocked. 
 
 4. **I/O Interface**  
-  - **Input**: read exclusively from `/tmp/input/`  
-  - **Output**: write exclusively to `/tmp/output/`  
-  - **No Extra Files**: do not generate caches or logs in other directories.
+    - **Input**: read exclusively from `/tmp/input/`  
+    - **Output**: write exclusively to `/tmp/output/`  
+    - **No Extra Files**: do not generate caches or logs in other directories.
 
 5. **Time Limit**  
    Each task has a **15-minute** wall-clock limit. Any process running longer will be force-terminated. (@Ahmed Please confirm this if it should be added)
 
 6. **Submission Tips**  
-  - **Local Validation**: always run `./do_test_run.sh` before packing.  
-  - **Save Your Container**: use `./do_save.sh` to generate a `<task>_submission.tar.gz` (max **2 GB**).  
-  - **Naming Convention**: name archives as `submission_task1.tar.gz`, `submission_task2.tar.gz`, etc.  
-  - **Double-Check**: ensure `TaskX/resources/` contains all model artifacts and updated `requirements.txt`.
+    - **Local Validation**: always run `./do_test_run.sh` before packing.  
+    - **Save Your Container**: use `./do_save.sh` to generate a `<task>_submission.tar.gz` (max **2 GB**).  
+    - **Naming Convention**: name archives as `submission_task1.tar.gz`, `submission_task2.tar.gz`, etc.  
+    - **Double-Check**: ensure `TaskX/resources/` contains all model artifacts and updated `requirements.txt`.
 
 7. **Common Error Messages**  
    | Error Text                          | Likely Cause                                    | Fix                                 |
