@@ -142,24 +142,32 @@ Each task folder is self-contained and contains only the scripts needed for that
     └── task3_inference.py        # Inference entry-point for Task 3
 ```
 - **Task1/**
-
+  - **scripts/train.py**: Train a segmentation model for Task 1 (Available models: unet3d, segresnet, unetr, swinunetr)
   - **scripts/inference.py**: Evaluation script for Task 1 segmentation model.
-  - **Usage**:
-    ```
+  <!-- - **Usage**:
+    ```bash
+    # Perform Training
+    python scripts/train.py --config unet3d
+    ``` -->
 
 - **Task2/**
 
   - **task2\_prognosis.py**: end-to-end training and validation script for Task 2’s prognosis model.
   - **task2\_inference.py**: Inference script for HECKTOR survival prediction using ensemble model.
-  - **Usage**: 
-    ```python inference_script.py --csv test_data.csv --images_dir ./test_images --ensemble ensemble_model.pt --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl```
+  <!-- - **Usage**: 
+    ```bash
+    python inference_script.py \
+    --csv test_data.csv --images_dir ./test_images \
+    --ensemble ensemble_model.pt \
+    --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl
+    ``` -->
 
 - **Task3/**
 
   - **task3\_classification.py**: end-to-end training and validation script for Task 3’s classification model.
   - **task3\_inference.py**: loads saved weights and runs inference on a single sample or batch.
-  - **Usage**: 
-    ```Will need to add command for this Task as well.```
+  <!-- - **Usage**: 
+    ```Will need to add command for this Task as well.``` -->
 
 
 Each script is ready to run out of the box. Just point it at your data directory and checkpoint folder to get started experimenting on that task.
@@ -229,19 +237,44 @@ python task2_prognosis.py
 
 # 🔍 Inference & Evaluation
 
-To run inference on validation data (**Should we give the inference command for each task**):
+To run inference on validation data, use the below command accordingly for each task:
 
-```bash
-cd Task2
-python python inference_script.py \
-  --csv test_data.csv \
-  --images_dir ./test_images \
-  --ensemble ensemble_model.pt \
-  --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl \
-  --model-path checkpoint/best.pth \
-  --input-path ../data/test/sample_001.png \
-  --output-path results/sample_001_out.json
-```
+- **Task 1**:
+  ```bash
+  cd Task1/
+  # Inference on entire directory
+  python scripts/inference.py \
+      --model_path experiments/unet3d/checkpoints/best_model.pth \
+      --input_dir /path/to/test/images \
+      --output_dir /path/to/predictions
+
+  # Inferenceo on single case
+  python scripts/inference.py \
+      --model_path experiments/unet3d/checkpoints/best_model.pth \
+      --single_case \
+      --ct_path /path/to/ct.nii.gz \
+      --pet_path /path/to/pet.nii.gz \
+      --output_dir /path/to/output
+  ```
+
+- **Task 2**:
+  ```bash
+  cd Task2/
+  python python inference_script.py \
+    --csv test_data.csv \
+    --images_dir ./test_images \
+    --ensemble ensemble_model.pt \
+    --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl \
+    --model-path checkpoint/best.pth \
+    --input-path ../data/test/sample_001.png \
+    --output-path results/sample_001_out.json
+  ```
+
+- **Task 3**:
+  ```bash
+  cd Task3/
+  Will need to add command for this Task as well.
+  ```
 
 - **Metrics:** We use **IoU**, **F1-score**, and **Accuracy**. (**Should we add the metrics**)
 
