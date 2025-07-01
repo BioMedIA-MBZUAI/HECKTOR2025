@@ -1,0 +1,3 @@
+resources/checkpoints/*
+!resources/checkpoints/.gitkeep
+

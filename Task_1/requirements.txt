@@ -1,0 +1,41 @@
+# Core ML libraries
+numpy>=1.26.0
+scipy>=1.15.0
+
+# Medical imaging and segmentation
+monai>=1.5.0
+nibabel
+SimpleITK>=2.5.0
+scikit-image>=0.25.0
+
+# Neural network utilities
+timm>=1.0.0
+nnunetv2>=2.6.0
+
+# Data handling and processing
+pandas>=2.2.0
+h5py>=3.14.0
+pyarrow>=19.0.0
+
+# Image processing
+imageio>=2.37.0
+tifffile>=2025.6.0
+pillow>=11.0.0
+
+# Visualization
+matplotlib>=3.10.0
+seaborn>=0.13.0
+
+# Utilities
+tqdm>=4.67.0
+pyyaml>=6.0.0
+fsspec>=2025.5.0
+joblib>=1.5.0
+
+# Development and training
+scikit-learn>=1.7.0
+psutil>=7.0.0
+
+
+# Configuration management
+yacs>=0.1.8
