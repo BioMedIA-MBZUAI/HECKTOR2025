@@ -173,31 +173,38 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 
 # <img src="assets/logos/restrictions.svg" width="24" alt="⚠️"/> Grand Challenge Restrictions & Submission Tips
 
-1. **Offline Execution Only**  
+This section is to guide the participants to the [submission tips](https://grand-challenge.org/documentatimaking-a-challenge-submission/#submission-tips) documentation. This includes important information like:
+
+1. **Algorithm Submission**
+   - You do not need to create a new algorithm for each submission.
+   - If you update your algorithm, don't forget to make a new submission to the challenge with it, this will not happen automatically. For more guidelines on how to creat a submission on Grand-Challenge and upload your algorithm, plese follow the intructions [here](/doc/submission-guidelines.md)
+
+2. **Offline Execution Only**  
   Your container **must not** attempt any network access (HTTP, SSH, DNS, etc.). Any outgoing connection will cause automatic disqualification.
 
-2. **Computational & Memory Constraints**  
+3. **Computational & Memory Constraints**  
     - **GPU**: Your code will run on NVIDIA T4 Tensor Core GPU with 16 GB VRAM. Please design the model so that it should be able to execute on this GPU.  
     - **Memory Limit**: Peak RAM usage must stay under **16 GB**.
+    - **Docker size**:  The container you upload for your algorithm cannot exceed 10GB.
 
-3. **Filesystem Write Permissions**  
+4. **Filesystem Write Permissions**  
    All writes (models, logs, outputs) **must** go under `/tmp/`. Writing elsewhere on the filesystem will be ignored or blocked. 
 
-4. **I/O Interface**  
+5. **I/O Interface**  
     - **Input**: read exclusively from `/tmp/input/`  
     - **Output**: write exclusively to `/tmp/output/`  
     - **No Extra Files**: do not generate caches or logs in other directories.
 
-5. **Time Limit**  
+6. **Time Limit**  
    Tasks 1 and 3 have a **10-minute** wall-clock limit, while task 2 has a **15-minute** limit. Any process running longer will be force-terminated.
 
-6. **Submission Tips**  
+7. **Submission Tips**  
     - **Local Validation**: always run `./do_test_run.sh` before packing.  
     - **Save Your Container**: use `./do_save.sh` to generate a `<task>_submission.tar.gz` (max **2 GB**).  
     - **Naming Convention**: name archives as `submission_task1.tar.gz`, `submission_task2.tar.gz`, etc.  
     - **Double-Check**: ensure `TaskX/resources/` contains all model artifacts and updated `requirements.txt`.
 
-7. **Common Error Messages**  
+8. **Common Error Messages**  
    | Error Text                          | Likely Cause                                    | Fix                                 |
    |-------------------------------------|-------------------------------------------------|-------------------------------------|
    | `Model file not found`              | Missing weights in `TaskX/resources/`           | Add your `.pth`/`.onnx` files       |
