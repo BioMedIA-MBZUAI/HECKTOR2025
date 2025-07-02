@@ -297,11 +297,11 @@ To run inference on validation data, use the below command accordingly for each 
 
 #### **Task 3**:
   ```bash
-  cd Task3/
-  Will need to add command for this Task as well.
-  ```
-
-- **Metrics:** We use **IoU**, **F1-score**, and **Accuracy**. (**Should we add the metrics**)
+    python inference_script.py \
+    --csv test_data.csv --images_dir ./test_images \
+    --ensemble ensemble_model.pt \
+    --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl
+    ```
 
 ---
 
