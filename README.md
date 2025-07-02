@@ -321,18 +321,6 @@ To run inference on validation data, use the below command accordingly for each 
 4. [Video Tutorial](#video_tutorial) -->
 
 
-# 📋 Basic Instructions <a name="basic_instructions"></a>
-
-
-
-
-- This section is to guide the participants to the [submission tips](https://grand-challenge.org/documentation/making-a-challenge-submission/#submission-tips) documentation. This includes important information like:
-  1. The duration of inference jobs will be limited by the challenge you created the container.
-  2. The container you upload for your algorithm cannot exceed 10GB.
-  3. You do not need to create a new algorithm for each submission.
-  4. If you update your algorithm, don't forget to make a new submission to the challenge with it, this will not happen automatically. For more guidelines on how to creat a submission on Grand-Challenge and upload your algorithm, plese follow the intructions [here](/doc/submission-guidelines.md)
-
-
 <!-- ## Creating Docker Container <a name="creating_docker"></a>
 
 In this repository, you can find a template for creating valid a docker container for [HECKTOR 2025 Challenge](https://hecktor25.grand-challenge.org/hecktor25/). We also provide one example algorithm that has been prepared based on the aforementioned template: 
