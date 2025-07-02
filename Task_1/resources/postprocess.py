@@ -1,41 +1,57 @@
-import SimpleITK as sitk
 import numpy as np
+import SimpleITK as sitk
+
 
 def prediction_to_original_space(
-    pred_crop_np: np.ndarray,          # shape: [D, H, W]
-    box_start: np.ndarray,             # in (z, y, x) voxel order of resampled space
-    box_end:   np.ndarray,
-    resampled_ct_sitk: sitk.Image,
-    original_ct_sitk:  sitk.Image,
-) -> sitk.Image:
+    pred_np: np.ndarray,            # (Z,Y,X)   – network output, CH squeezed
+    meta: dict,                     # ct_proc.meta  coming from apply_monai_transforms
+    box_start_xyz, box_end_xyz,     # lists returned by crop_neck_region_sitk
+    resampled_ct_sitk: sitk.Image,  # 1-mm CT fed to MONAI
+    original_ct_sitk: sitk.Image,   # the scanner-resolution CT
+):
     """
-    Convert predicted mask back to original CT space.
+    1) remove symmetric Z-padding (computed from shape diff, no meta["padding"] needed)
+    2) undo CropForegroundd (roi_start / roi_end in `meta`)
+    3) undo neck ROI crop (box_start_xyz / box_end_xyz)
+    4) resample mask from 1-mm space back to original CT space (nearest-neighbor)
+
+    returns: SimpleITK.Image aligned with `original_ct_sitk`
     """
-    # (1) Create empty volume in resampled space
-    resampled_shape = sitk.GetArrayFromImage(resampled_ct_sitk).shape
-    full_mask_arr = np.zeros(resampled_shape, dtype=np.uint8)
+    # ------------------------------------------------------- 1. undo SpatialPadd
+    Zt = box_end_xyz[2] - box_start_xyz[2]               # target depth (e.g. 298)
+    z_extra = pred_np.shape[0] - Zt                      # 12 when 310→298
+    if z_extra > 0:
+        z_trim = z_extra // 2
+        pred_np = pred_np[z_trim:z_trim + Zt, ...]       # (Zt,Y,X)
 
-    # (2) Paste predicted crop into correct voxel location
-    z0, y0, x0 = box_start.astype(int)
-    z1, y1, x1 = box_end.astype(int)
+    # ------------------------------------------------------- 2. undo CropForegroundd
+    if "roi_start" in meta:                              # might be missing
+        z0,y0,x0 = meta["roi_start"]
+        z1,y1,x1 = meta["roi_end"]
+        canvas_cf = np.zeros((Zt,       # already trimmed depth
+                              y1-y0,
+                              x1-x0), dtype=pred_np.dtype)
+        canvas_cf[z0:z1, y0:y1, x0:x1] = pred_np
+    else:
+        canvas_cf = pred_np                               # nothing to undo
 
-    assert pred_crop_np.shape == (z1 - z0, y1 - y0, x1 - x0), "Shape mismatch with crop box"
-    full_mask_arr[z0:z1, y0:y1, x0:x1] = pred_crop_np
+    # ------------------------------------------------------- 3. undo neck ROI crop
+    x0,y0,z0 = box_start_xyz
+    x1,y1,z1 = box_end_xyz
+    Zr,Yr,Xr = resampled_ct_sitk.GetSize()[2], resampled_ct_sitk.GetSize()[1], resampled_ct_sitk.GetSize()[0]
+    canvas_roi = np.zeros((Zr, Yr, Xr), dtype=pred_np.dtype)
+    canvas_roi[z0:z1, y0:y1, x0:x1] = canvas_cf
 
-    # (3) Convert to SimpleITK image and copy spatial metadata
-    full_mask_img = sitk.GetImageFromArray(full_mask_arr)
-    full_mask_img.SetSpacing(resampled_ct_sitk.GetSpacing())
-    full_mask_img.SetOrigin(resampled_ct_sitk.GetOrigin())
-    full_mask_img.SetDirection(resampled_ct_sitk.GetDirection())
+    # ------------------------------------------------------- 4. resample to original CT
+    mask_1mm = sitk.GetImageFromArray(canvas_roi.astype(np.uint8))
+    mask_1mm.CopyInformation(resampled_ct_sitk)
 
-    # (4) Resample to original CT space using nearest neighbor
-    resampled_back = sitk.Resample(
-        full_mask_img,
-        original_ct_sitk,               # this ensures matching size, origin, spacing, direction
-        sitk.Transform(),               # identity transform
+    mask_orig = sitk.Resample(
+        mask_1mm,                # moving
+        original_ct_sitk,        # reference
+        sitk.Transform(),        # identity
         sitk.sitkNearestNeighbor,
         0,
         sitk.sitkUInt8,
     )
-
-    return resampled_back
+    return mask_orig

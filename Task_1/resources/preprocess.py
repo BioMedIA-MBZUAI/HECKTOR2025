@@ -4,6 +4,46 @@ import torch
 import warnings
 from skimage.measure import label
  
+from monai.transforms import (
+    Compose,
+    LoadImaged,
+    EnsureChannelFirstd,
+    Orientationd,
+    ScaleIntensityRanged,
+    CropForegroundd,
+    SpatialPadd,
+    NormalizeIntensityd,
+    # Sigmoid activation is included
+    Activationsd,
+)
+from monai.data import MetaTensor
+
+
+
+def sitk_to_metatensor(img_sitk: sitk.Image) -> MetaTensor:
+    """
+    SimpleITK ➜ MetaTensor, channel-first [1, Z, Y, X],
+    *no* manual transpose.  Direction/spacing/origin preserved.
+    """
+    arr = sitk.GetArrayFromImage(img_sitk).astype(np.float32)  # [Z, Y, X]
+    arr = arr[None, ...]                                       # [1, Z, Y, X]
+
+    spacing   = img_sitk.GetSpacing()       # (sx, sy, sz)
+    origin    = img_sitk.GetOrigin()
+    direction = img_sitk.GetDirection()     # 9-tuple row-major
+
+    affine = np.eye(4, dtype=np.float64)
+    affine[:3, :3] = np.reshape(direction, (3, 3)) * spacing
+    affine[:3,  3] = origin
+
+    meta = {
+        "spacing":   spacing,
+        "origin":    origin,
+        "direction": direction,
+        "affine":    affine,
+    }
+    return MetaTensor(arr, meta=meta)
+
  
 def get_bounding_boxes(ct_sitk, pet_sitk):
     """
@@ -21,7 +61,7 @@ def get_bounding_boxes(ct_sitk, pet_sitk):
         np.minimum(ct_position_max, pet_position_max),
     ], axis=0)
  
-def resample_images(ct, pt):
+def resample_images(ct_path, pet_path):
     """
     Resample CT and PET images to specified resolution using SimpleITK.
     
@@ -36,6 +76,8 @@ def resample_images(ct, pt):
     resampler = sitk.ResampleImageFilter()
     resampler.SetOutputDirection([1, 0, 0, 0, 1, 0, 0, 0, 1])
     resampler.SetOutputSpacing(resampling)
+    ct = sitk.ReadImage(ct_path)
+    pt = sitk.ReadImage(pet_path)
     bb = get_bounding_boxes(ct, pt)
     size = np.round((bb[3:] - bb[:3]) / resampling).astype(int)
     resampler.SetOutputOrigin(bb[:3])
@@ -81,39 +123,121 @@ def get_roi_center(pet_tensor, z_top_fraction=0.75, z_score_threshold=1.0):
     center_full_image = center_in_top + np.array([0, 0, crop_z_start])
     return center_full_image.astype(int)
  
-def crop_neck_region(ct_sitk, pet_sitk):
-    """
-    Crop CT and PET images using SimpleITK to preserve spacing/origin/direction.
-    
-    Args:
-        ct_sitk: Resampled CT as SimpleITK.Image
-        pet_sitk: Resampled PET as SimpleITK.Image
-        
-    Returns:
-        Cropped CT, PET, and crop box (box_start, box_end) in voxel space
-    """
-    pet_np = sitk.GetArrayFromImage(pet_sitk)
-    pet_tensor = torch.from_numpy(pet_np).float()
+def crop_neck_region_sitk(
+        ct_sitk:  sitk.Image,
+        pet_sitk: sitk.Image,
+        crop_box_size=(200, 200, 310),
+        z_top_fraction=0.75,
+        z_score_threshold=1.0,
+):
+    # ------------------------------------------------------------------
+    # 1. Convert PET to numpy for ROI-finding (SimpleITK gives z,y,x order)
+    # ------------------------------------------------------------------
+    pet_np_zyx = sitk.GetArrayFromImage(pet_sitk)           # [z, y, x]
+    pet_np_xyz = np.transpose(pet_np_zyx, (2, 1, 0))       # [x, y, z]
+    pet_tensor = torch.from_numpy(pet_np_xyz).float()
 
-    crop_box_size = np.array([200, 200, 310])
-    center_voxels = get_roi_center(pet_tensor)  # (z, y, x)
+    # ------------------------------------------------------------------
+    # 2. Determine the crop centre and bounding box in voxel coordinates
+    # ------------------------------------------------------------------
+    crop_box_size = np.asarray(crop_box_size, dtype=int)
+    center = get_roi_center(pet_tensor,
+                            z_top_fraction=z_top_fraction,
+                            z_score_threshold=z_score_threshold)
 
-    box_start = center_voxels - crop_box_size // 2
-    box_end = box_start + crop_box_size
+    img_shape = np.asarray(pet_np_xyz.shape)
+    box_start = np.clip(center - crop_box_size // 2, 0, img_shape)
+    box_end   = np.clip(box_start + crop_box_size, 0, img_shape)
 
-    shape = np.array(pet_np.shape)
-    box_start = np.maximum(box_start, 0)
-    box_end = np.minimum(box_end, shape)
+    # Guard in case image is smaller than requested box
     box_start = np.maximum(box_end - crop_box_size, 0)
 
-    box_start = box_start.astype(int)
-    box_end = box_end.astype(int)
+    # SimpleITK wants index & size in (x, y, z) order
+    index = [int(i) for i in box_start]
+    size  = [int(e - s) for s, e in zip(box_start, box_end)]
 
-    # Convert to SITK index/size (x, y, z)
-    roi_start = [int(box_start[2]), int(box_start[1]), int(box_start[0])]
-    roi_size = [int(box_end[2] - box_start[2]), int(box_end[1] - box_start[1]), int(box_end[0] - box_start[0])]
+    # ------------------------------------------------------------------
+    # 3. Crop with RegionOfInterest (origin adjusted automatically)
+    # ------------------------------------------------------------------
+    ct_crop  = sitk.RegionOfInterest(ct_sitk,  size=size, index=index)
+    pet_crop = sitk.RegionOfInterest(pet_sitk, size=size, index=index)
 
-    ct_cropped = sitk.RegionOfInterest(ct_sitk, size=roi_size, index=roi_start)
-    pet_cropped = sitk.RegionOfInterest(pet_sitk, size=roi_size, index=roi_start)
+    return ct_crop, pet_crop, box_start, box_end
 
-    return ct_cropped, pet_cropped, box_start, box_end
+def get_preprocessing_transforms(keys, final_size=(200, 200, 310)):
+    """
+    Defines the sequence of deterministic transforms to be applied to each case.
+    This version includes Sigmoid activation for CT and PET.
+    
+    Args:
+        keys (list): List of keys ('ct', 'pet', 'label') to apply transforms to.
+        final_size (tuple): The final spatial size to pad the images to after cropping.
+        
+    Returns:
+        monai.transforms.Compose: The composition of all preprocessing transforms.
+    """
+    return Compose([
+        # 3. Reorient all images to a standard 'RAS' orientation
+        Orientationd(keys=keys, axcodes="RAS"),
+        
+        # 4. Normalize images and apply sigmoid
+        # 4a. Re-scale CT intensity to [0, 1] range.
+        ScaleIntensityRanged(
+            keys=["ct"], a_min=-250, a_max=250, b_min=0.0, b_max=1.0, clip=True
+        ),
+        # 4b. Normalize PET to zero mean, unit variance.
+        NormalizeIntensityd(keys=["pet"], nonzero=True, channel_wise=True),
+        
+        # # =========================================================================
+        # # CONFIRMATION: Sigmoid is applied here to CT and PET as a soft clamp.
+        # # =========================================================================
+        # Activationsd(keys=["ct", "pet"], sigmoid=True),
+        
+        # 5. Crop away empty background based on CT and then pad all to a uniform size.
+        CropForegroundd(keys=keys, source_key="ct", allow_smaller=True),
+        SpatialPadd(keys=keys, spatial_size=final_size, method="symmetric"),
+    ])
+
+def apply_monai_transforms(ct_sitk: sitk.Image,
+                            pt_sitk: sitk.Image,
+                            final_size = (310, 200, 200)):
+    """
+    Run the deterministic MONAI preprocessing on in-memory SimpleITK volumes.
+
+    Parameters
+    ----------
+    ct_sitk, pt_sitk : sitk.Image
+        Aligned, resampled CT / PET volumes.
+    final_size       : tuple[int, int, int]
+        Target padded size (passed through to get_preprocessing_transforms).
+
+    Returns
+    -------
+    ct_t, pet_t : monai.data.MetaTensor   (shape = [C, H, W, D])
+    meta        : dict                    (spacing, origin, direction, …)
+    """
+    # ------------------------------------------------------------------
+    # 1. Wrap into MetaTensors so MONAI keeps spatial metadata
+    # ------------------------------------------------------------------
+    ct_mt  = sitk_to_metatensor(ct_sitk)
+
+    pet_mt = sitk_to_metatensor(pt_sitk)
+    data = {"ct": ct_mt, "pet": pet_mt}
+
+
+    # ------------------------------------------------------------------
+    # 2. Build the preprocessing Compose 
+    # ------------------------------------------------------------------
+    xforms  = get_preprocessing_transforms(keys=["ct", "pet"],
+                                                 final_size=final_size)
+    out    = xforms(data)
+    # ------------------------------------------------------------------
+    # 3. Execute transforms
+    # ------------------------------------------------------------------
+    ct_proc  = out["ct"]     # MetaTensor, 1×H×W×D
+    pet_proc = out["pet"]
+    meta = ct_proc.meta               # <— this is the live dict
+
+
+    return ct_proc, pet_proc, meta   
+

@@ -24,67 +24,66 @@ import SimpleITK
 import numpy
 import os
 import numpy as np
+from monai.transforms import SaveImageD
 
 INPUT_PATH = Path("/input")
 OUTPUT_PATH = Path("/output")
 RESOURCE_PATH = Path("resources")
 
-from resources.preprocess import resample_images, crop_neck_region
+from resources.preprocess import resample_images, crop_neck_region_sitk, apply_monai_transforms
 from resources.utils import load_model_from_checkpoint, arrays_to_tensor, run_inference
 from resources.postprocess import prediction_to_original_space
 
 def run():
     # Read the input
-    input_ct_image, input_ct_sitk  = load_image_file_as_array(
+    ct_path  = load_image_file_as_array(
         location=INPUT_PATH / "images/ct",
     )
     input_electronic_health_record = load_json_file(
         location=INPUT_PATH / "ehr.json",
     )
-    input_pet_image, input_pet_sitk = load_image_file_as_array(
+    pt_path = load_image_file_as_array(
         location=INPUT_PATH / "images/pet",
     )
 
-    # Preprocess the inputs and save the bounding boxes for postprocessing
-    ct_resampled, pet_resampled, bb = resample_images(
-        ct=input_ct_sitk,
-        pt=input_pet_sitk,
+    # resample the images to 1mm isotropic resolution
+    ct, pt, bb= resample_images(
+        ct_path=ct_path,
+        pet_path=pt_path,
     )
-    ct_cropped, pet_cropped, box_start, box_end = crop_neck_region(
-        ct_sitk=ct_resampled,
-        pet_sitk=pet_resampled,
+    # crop the images to the bounding box
+    ct_cropped, pet_cropped, box_start, box_end = crop_neck_region_sitk(
+        ct_sitk=ct,
+        pet_sitk=pt,
     )
 
-    input_tensor = arrays_to_tensor(
-        ct_array=ct_cropped,
-        pet_array=pet_cropped
-    )
-    
-    # Load the model and run inference
+    # apply transformation to the cropped images
+    ct_transformed, pet_transformed, meta = apply_monai_transforms(ct_cropped, pet_cropped)
+    input_tensor = arrays_to_tensor(ct_transformed, pet_transformed)
+
+    # # Load the model and run inference
     model_path = RESOURCE_PATH / "checkpoints" / "best_model.pth"
     model, config = load_model_from_checkpoint(model_path, device="cuda")
 
     prediction = run_inference(model, input_tensor, config, device="cuda", use_sliding_window=True)
     pred_np   = np.squeeze(prediction, axis=0)   # [D,H,W] uint8
-
-    # Post-process the prediction
-    # 1-mm bbox geometry image
-
-    output_tumor_and_lymph_node_segmentation = prediction_to_original_space(
-        pred_crop_np=pred_np,
-        box_start=box_start,
-        box_end=box_end,
-        resampled_ct_sitk=ct_resampled,
-        original_ct_sitk=input_ct_sitk,     
+    
+    
+        
+    mask_orig = prediction_to_original_space(
+        pred_np,         
+        meta,                        # from apply_monai_transforms
+        box_start, box_end,
+        ct,                          # 1-mm resampled CT
+        SimpleITK.ReadImage(ct_path),     # original-resolution CT
     )
-
+ 
 
     # Save your output
     write_array_as_image_file(
         location=OUTPUT_PATH / "images/tumor-lymph-node-segmentation",
-        array=output_tumor_and_lymph_node_segmentation,
+        array=mask_orig,
     )
-
     return 0
 
 
@@ -101,10 +100,7 @@ def load_image_file_as_array(*, location):
         + glob(str(location / "*.tiff"))
         + glob(str(location / "*.mha"))
     )
-    result = SimpleITK.ReadImage(input_files[0])
-
-    # Convert it to a Numpy array
-    return SimpleITK.GetArrayFromImage(result), result
+    return input_files[0]
 
 
 def write_array_as_image_file(*, location, array, filename="output.mha"):
@@ -115,7 +111,7 @@ def write_array_as_image_file(*, location, array, filename="output.mha"):
     else:                                 # assume NumPy
         if array.ndim == 4 and array.shape[0] == 1:
             array = array[0]              # drop batch dim if present
-        img = SimpleITK.GetImageFromArray(array.astype(np.uint8))
+        img = SimpleITK.GetImageFromArray(array)
 
     SimpleITK.WriteImage(img, str(location / filename), useCompression=True)
 

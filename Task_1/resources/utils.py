@@ -67,21 +67,49 @@ def load_model_from_checkpoint(checkpoint_path, device='cuda'):
         traceback.print_exc()
         return None, None
     
-def arrays_to_tensor(ct_array, pet_array):
+def arrays_to_tensor(ct_vol, pet_vol):
     """
-    Convert two NumPy volumes (Z,Y,X) to a 5-D tensor (1, C, Z, Y, X).
-    Accepts either SimpleITK.Image or np.ndarray.
+    Cast CT & PET volumes (of several possible types) into
+    a single 5-D torch tensor [1, 2, Z, Y, X].
+
+    Accepts:
+      • SimpleITK.Image   (assumed Z-Y-X grid)
+      • np.ndarray        (Z, Y, X)  OR (1, Z, Y, X)
+      • torch.Tensor / MetaTensor (1, Z, Y, X)
     """
-    # Convert to np.array if a SimpleITK image
-    if isinstance(ct_array, sitk.Image):
-        ct_array = sitk.GetArrayFromImage(ct_array)
-    if isinstance(pet_array, sitk.Image):
-        pet_array = sitk.GetArrayFromImage(pet_array)
 
-    # stack on channel axis  -> (C, Z, Y, X)
-    stacked = np.stack([ct_array, pet_array], axis=0)
+    def to_tensor(vol):
+        # --- SimpleITK -> torch -----------------------------------------
+        if isinstance(vol, sitk.Image):
+            vol = torch.from_numpy(sitk.GetArrayFromImage(vol))  # Z,Y,X
+            vol = vol.unsqueeze(0)                               # 1,Z,Y,X
+            return vol.float()
 
-    return torch.from_numpy(stacked).unsqueeze(0).float()
+        # --- NumPy -> torch ---------------------------------------------
+        if isinstance(vol, np.ndarray):
+            vol = torch.from_numpy(vol)
+            if vol.ndim == 3:           # Z,Y,X
+                vol = vol.unsqueeze(0)  # 1,Z,Y,X
+            return vol.float()
+
+        # --- torch / MetaTensor -----------------------------------------
+        if isinstance(vol, torch.Tensor):
+            if vol.ndim == 3:           # Z,Y,X   (rare case)
+                vol = vol.unsqueeze(0)  # 1,Z,Y,X
+            return vol.float()
+
+        raise TypeError(f"Unsupported type {type(vol)}")
+
+    ct_t  = to_tensor(ct_vol)
+    pet_t = to_tensor(pet_vol)
+
+    # Shape check: both must now be (1, Z, Y, X)
+    if ct_t.shape[1:] != pet_t.shape[1:]:
+        raise ValueError(f"Shape mismatch: CT {ct_t.shape} vs PET {pet_t.shape}")
+
+    combined = torch.cat([ct_t, pet_t], dim=0)   # (2, Z, Y, X)
+    return combined.unsqueeze(0)                 # (1, 2, Z, Y, X)
+
 
 
 
