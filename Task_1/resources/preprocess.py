@@ -183,7 +183,7 @@ def get_preprocessing_transforms(keys, final_size=(200, 200, 310)):
         # 4. Normalize images and apply sigmoid
         # 4a. Re-scale CT intensity to [0, 1] range.
         ScaleIntensityRanged(
-            keys=["ct"], a_min=-250, a_max=250, b_min=0.0, b_max=1.0, clip=True
+            keys=["ct"], a_min=-250, a_max=250, b_min=-6.0, b_max=6.0, clip=True
         ),
         # 4b. Normalize PET to zero mean, unit variance.
         NormalizeIntensityd(keys=["pet"], nonzero=True, channel_wise=True),
@@ -195,7 +195,7 @@ def get_preprocessing_transforms(keys, final_size=(200, 200, 310)):
         
         # 5. Crop away empty background based on CT and then pad all to a uniform size.
         CropForegroundd(keys=keys, source_key="ct", allow_smaller=True),
-        SpatialPadd(keys=keys, spatial_size=final_size, method="symmetric"),
+        SpatialPadd(keys=keys, spatial_size=final_size, method="end"),
     ])
 
 def apply_monai_transforms(ct_sitk: sitk.Image,
