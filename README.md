@@ -167,7 +167,15 @@ Each task folder is self-contained and contains only the scripts needed for that
   - **task3\_classification.py**: end-to-end training and validation script for Task 3’s classification model.
   - **task3\_inference.py**: loads saved weights and runs inference on a single sample or batch.
   <!-- - **Usage**: 
-    ```Will need to add command for this Task as well.``` -->
+    ```bash
+    python your_script.py \
+    --input_path /input \
+    --output_path /output \
+    --scaler_file resources/scaler.joblib \
+    --ohe_file resources/ohe.joblib \
+    --checkpoint resources/best_model.pt \
+    --ehr_file /input/ehr.json
+  ``` -->
 
 
 Each script is ready to run out of the box. Just point it at your data directory and checkpoint folder to get started experimenting on that task.
