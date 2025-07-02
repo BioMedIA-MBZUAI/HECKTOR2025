@@ -4,15 +4,14 @@
 <img src="/assets/images/HECKTOR-main.jpeg">
 </p>
 
-
-This repository contains instructions and examples for creating a valid docker image for the [HECKTOR2025 challenge](https://hecktor25.grand-challenge.org/). 
-
 ---
-
+<!--
 # <img src="assets/logos/countdown.png" width="24" alt="⏳"/> Submission Countdown
 Animation TBA
 
 ---
+-->
+
 # ℹ️ About
 
 This repository contains the submission template and instructions for the [Grand Challenge 2025](https://hecktor25.grand-challenge.org/hecktor25/) docker-based inference task. Follow this guide to install Docker, run the baseline inference, observe challenge restrictions, save your container, and prepare your submission.
@@ -131,7 +130,6 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 
     * Place all model weights, configuration files, or auxiliary code inside the `resources/` folder of the corresponding Task directory as this is the only directory where you can place your supporting files.
     * You **may** update `requirements.txt` within each Task folder to install any additional Python packages needed by your model.
-    * **Do NOT** modify any other files or directories.
 
 3. **Working Directory**
 
@@ -178,7 +176,7 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 1. **Offline Execution Only**  
   Your container **must not** attempt any network access (HTTP, SSH, DNS, etc.). Any outgoing connection will cause automatic disqualification.
 
-2. **CPU-Only & Memory Constraints**  
+2. **Computational & Memory Constraints**  
     - **GPU**: Your code will run on NVIDIA T4 Tensor Core GPU with 16 GB VRAM. Please design the model so that it should be able to execute on this GPU.  
     - **Memory Limit**: Peak RAM usage must stay under **16 GB**.
 
@@ -191,7 +189,7 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
     - **No Extra Files**: do not generate caches or logs in other directories.
 
 5. **Time Limit**  
-   Each task has a **15-minute** wall-clock limit. Any process running longer will be force-terminated. (@Ahmed Please confirm this if it should be added)
+   Tasks 1 and 3 have a **10-minute** wall-clock limit, while task 2 has a **15-minute** limit. Any process running longer will be force-terminated.
 
 6. **Submission Tips**  
     - **Local Validation**: always run `./do_test_run.sh` before packing.  
