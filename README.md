@@ -273,7 +273,7 @@ To run inference on validation data, use the below command accordingly for each 
       --input_dir /path/to/test/images \
       --output_dir /path/to/predictions
 
-  # Inferenceo on single case
+  # Inference on single case
   python scripts/inference.py \
       --model_path experiments/unet3d/checkpoints/best_model.pth \
       --single_case \
@@ -297,11 +297,14 @@ To run inference on validation data, use the below command accordingly for each 
 
 #### **Task 3**:
   ```bash
-    python inference_script.py \
-    --csv test_data.csv --images_dir ./test_images \
-    --ensemble ensemble_model.pt \
-    --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl
-    ```
+  python task3_inference.py \
+  --input_path /input \
+  --output_path /output \
+  --scaler_file resources/scaler.joblib \
+  --ohe_file resources/ohe.joblib \
+  --checkpoint resources/best_model.pt \
+  --ehr_file /input/ehr.json
+```
 
 ---
 
