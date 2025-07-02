@@ -60,15 +60,17 @@ def run():
     # apply transformation to the cropped images
     ct_transformed, pet_transformed, meta = apply_monai_transforms(ct_cropped, pet_cropped)
     input_tensor = arrays_to_tensor(ct_transformed, pet_transformed)
+    input_tensor = input_tensor.permute(0, 1, 3, 4, 2).contiguous()
+
 
     # # Load the model and run inference
     model_path = RESOURCE_PATH / "checkpoints" / "best_model.pth"
     model, config = load_model_from_checkpoint(model_path, device="cuda")
 
     prediction = run_inference(model, input_tensor, config, device="cuda", use_sliding_window=True)
-    pred_np   = np.squeeze(prediction, axis=0)   # [D,H,W] uint8
     
-    
+    pred_np = prediction.transpose(0, 3, 1, 2)[0]     # → (310, 200, 200)
+
         
     mask_orig = prediction_to_original_space(
         pred_np,         
