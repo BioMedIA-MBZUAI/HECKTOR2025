@@ -8,7 +8,7 @@ Welcome to the **HECKTOR 2025 Challenge** repository! This repository contains i
 
 - [**main**](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main): Here you’ll find step-by-step guides, data loaders, training scripts, and inference examples so you can get a working model up and running in minutes.
 
-- [**docker-template**](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/docker-template): Designed for containerizing and submitting your final models to the Grand Challenge. This branch provides a Docker-based inference template, build/test/save scripts, and enforces all challenge restrictions (no network, CPU-only, `/tmp/` I/O, time limits, etc.).
+- [**docker-template**](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/docker-template): Designed for containerizing and submitting your final models to the Grand Challenge. This branch provides a Docker-based inference template, build/test/save scripts, and enforces all challenge restrictions.
 ---
 
 # How can this Repo help?
@@ -32,7 +32,7 @@ Following the success of the first editions of the HECKTOR challenge from 2020 t
   - **Task 1:** The automatic detection and segmentation of Head and Neck (H&N) primary tumors and lymph nodes in FDG-PET/CT images.
   - **Task 2:** The prediction of Recurrence-Free Survival (RFS) from the FDG-PET/CT images, available clinical information, and radiotherapy planning dose maps.
   - **Task 3:** The diagnosis of HPV status from the FDG-PET/CT images and available clinical information.
-- **Submission Deadline:** 15th August to 1st September 2025  
+- **Testing Submission Deadline:** 15th August to 1st September 2025  
 - **Website & Rules:** [Participation Policies](https://hecktor25.grand-challenge.org/participation-policies/)
 
 
@@ -92,7 +92,7 @@ hecktor2025_training/
         └── CHUM-001__PT.nii.gz
       ├── CHUM-002
       ├── ...
-      └── HECKTOR_2025_Training_Task_1.csv # HPV Status data
+      └── HECKTOR_2025_Training_Task_3.csv # HPV Status data
 ```
 3. **Dataset Description**: The data originates from FDG-PET and low-dose non-contrast-enhanced CT images (acquired with combined PET/CT scanners) of the Head & Neck region. It was collected from 10 different [centers](https://hecktor25.grand-challenge.org/dataset/#dataset-structure). Following are the different formats of the dataset:
 
@@ -203,20 +203,11 @@ Each script is ready to run out of the box. Just point it at your data directory
 3. **Install global requirements**
 
    ```bash
-   pip install -r requirements-global.txt (If we have any, else can remove)
-   ```
-4. **Per-task dependencies (If opt. for separate Req.txt file)**
-
-   ```bash
-   cd Task1
    pip install -r requirements.txt
-   cd ../Task2 && pip install -r requirements.txt
-   cd ../Task3 && pip install -r requirements.txt
    ```
-5. **Baseline Models**
+4. **Baseline Models**
 
-    - Pretrained checkpoints live under each `/tmp/AddPath`.
-    - They are already loaded in the baseline files for each task but you can also load by giving the path as an argument.
+    - Baseline models are available in [Baseline Model Weights](https://mbzuaiac-my.sharepoint.com/shared?id=%2Fpersonal%2Fsalma%5Fhassan%5Fmbzuai%5Fac%5Fae%2FDocuments%2FHECKTOR%202025%20Baselines&listurl=%2Fpersonal%2Fsalma%5Fhassan%5Fmbzuai%5Fac%5Fae%2FDocuments). To use them, download them and save them under the `TaskX/checkpoints` folder.
 
 ---
 
@@ -340,9 +331,7 @@ To run inference on validation data, use the below command accordingly for each 
   2. The container you upload for your algorithm cannot exceed 10GB.
   3. You do not need to create a new algorithm for each submission.
   4. If you update your algorithm, don't forget to make a new submission to the challenge with it, this will not happen automatically. For more guidelines on how to creat a submission on Grand-Challenge and upload your algorithm, plese follow the intructions [here](/doc/submission-guidelines.md)
-  5. If you test your own container you can see error messages the Results page of your algorithm. When running a sanity check we will provide the error messages for them.
 
-- This is a [demo starter kit](https://github.com/DIAGNijmegen/demo-challenge-pack/tree/main?tab=readme-ov-file#now-what) that includes steps to be taken to get started with the challenge pack effectively.
 
 <!-- ## Creating Docker Container <a name="creating_docker"></a>
 
