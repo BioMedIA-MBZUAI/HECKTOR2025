@@ -168,7 +168,7 @@ Each task folder is self-contained and contains only the scripts needed for that
   - **task3\_inference.py**: loads saved weights and runs inference on a single sample or batch.
   <!-- - **Usage**: 
     ```bash
-    python your_script.py \
+    python inference_classification.py \
     --input_path /input \
     --output_path /output \
     --scaler_file resources/scaler.joblib \
