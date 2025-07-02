@@ -13,10 +13,21 @@ from glob import glob
 import SimpleITK
 from monai.transforms import Resize, ScaleIntensity
 import torch.nn.functional as F
+from joblib import load
 
-INPUT_PATH = Path("/input")
-OUTPUT_PATH = Path("/output")
-RESOURCE_PATH = Path("resources")
+
+import argparse
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input_path", type=str, required=True)
+    parser.add_argument("--output_path", type=str, required=True)
+    parser.add_argument("--scaler_file", type=str, required=True)
+    parser.add_argument("--ohe_file", type=str, required=True)
+    parser.add_argument("--checkpoint", type=str, required=True)
+    parser.add_argument("--ehr_file", type=str, required=True)
+    return parser.parse_args()
+
 
 class MultiModalResNet(nn.Module):
     def __init__(self, clin_feat_dim, num_classes=2):
@@ -51,14 +62,20 @@ class MultiModalResNet(nn.Module):
         return self.classifier(f)
 
 
-def run():
+def run(args):
 
     # 1. Load inputs
-    ct_np = load_image_file_as_array(location=INPUT_PATH / "images/ct")
-    pet_np = load_image_file_as_array(location=INPUT_PATH / "images/pet")
-    ehr = load_json_file(location=INPUT_PATH / "ehr.json")
 
-    # 2. Preprocess images (mimicking monai transforms)
+    input_path = Path(args.input_path)
+    output_path = Path(args.output_path)
+
+    # 1. Load inputs
+    ct_np = load_image_file_as_array(location=input_path / "images/ct")
+    pet_np = load_image_file_as_array(location=input_path / "images/pet")
+
+    ehr = load_json_file(location=Path(args.ehr_file))
+
+    # 2. Preprocess images
     def preprocess_image(img):
         img = img.astype(np.float32)
         img = (img - img.min()) / (img.max() - img.min() + 1e-5)  # normalize
@@ -76,8 +93,8 @@ def run():
     cat_data = df_ehr[["Tobacco Consumption", "Alcohol Consumption", "Performance Status", "M-stage"]].astype(str).fillna("Unknown").values
 
     # Load scalers
-    scaler = load(RESOURCE_PATH / "scaler.joblib")
-    ohe = load(RESOURCE_PATH / "ohe.joblib")
+    scaler = load(args.scaler_file)
+    ohe = load(args.ohe_file)
 
     num_feats = scaler.transform(num_data)
     cat_feats = ohe.transform(cat_data)
@@ -86,7 +103,7 @@ def run():
 
     # 4. Load model
     model = MultiModalResNet(clin_feat_dim=x_clin.shape[1], num_classes=2).cuda()
-    model.load_state_dict(torch.load(RESOURCE_PATH / "best_model.pt"))
+    model.load_state_dict(torch.load(args.checkpoint))
     model.eval()
 
     # 5. Run prediction
@@ -95,7 +112,7 @@ def run():
         pred = logits.argmax(dim=1).item()  # 0 or 1
 
     # 6. Save output
-    write_json_file(location=OUTPUT_PATH / "hpv-status.json", content=pred)
+    write_json_file(location=output_path / "hpv-status.json", content=pred)
     return 0
 
 
@@ -138,4 +155,5 @@ def _show_torch_cuda_info():
 
 
 if __name__ == "__main__":
-    raise SystemExit(run())
+    args = get_args()
+    raise SystemExit(run(args))
