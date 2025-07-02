@@ -54,57 +54,16 @@ This repository contains the submission template and instructions for the [Grand
 
   As most of the participants might be using Linux, so we provide detailed steps to set-up the docker.
   To create and test your docker setup, you will need to install [Docker Engine](https://docs.docker.com/engine/install/)
-  and [NVIDIA-container-toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) (in case you need GPU computation).
+  and [NVIDIA-container-toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) (in case you need GPU computation). You can follow the instructions in the links to install the prerequisites on your system. 
 
-- **Docker Engine:**
-  - You can follow the instructions [here](https://docs.docker.com/engine/install/) to install `docker` on your system
-    - ```command: sudo pacman -S docker```
-  - Alternatively, you can also install using following steps:
+- **Docker Engine:** To verify that docker has been successfully installed, please run ```docker run hello-world```
 
-      ```bash
-      sudo apt-get update && sudo apt-get install -y \
-        apt-transport-https \
-        ca-certificates \
-        curl \
-        software-properties-common
-      ```
-    - Add Docker’s GPG key and repository:
-
-      ```bash
-      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-      sudo add-apt-repository \
-        "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-      ```
-    - Install Docker Engine:
-
-      ```bash
-      sudo apt-get update && sudo apt-get install -y docker-ce
-      ```
-    - Verify installation:
-
-      ```bash
-      docker --version
-      ```
-  - To verify that docker has been successfully installed, please run ```docker run hello-world```
-  - If the above command does not work run ```systemctl status docker``` to check docker status. If inactive run ```systemctl start docker```.
-  - If you can not run docker run ```hello-world``` without writing sudo first, you need to follow the instruction [here](https://docs.docker.com/engine/install/linux-postinstall/)
-    - ```sudo groupadd docker```
-    - ```sudo usermod -aG docker $USER```
-    - restart your machine
-- **Nvidia-container-toolkit:**
-  - You can follow the instruction [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) to install `nvidia-container-toolkit` on you system
-    - Following commands can be executed:
-      - ```sudo pacman -Syu nvidia-container-toolkit```
-      - ```sudo nvidia-ctk runtime configure --runtime=docker```
-      - ```sudo systemctl restart docker```
-  - To verify you can access gpu inside docker by running ```docker run --rm --gpus all nvidia/cuda:12.1.1-runtime-ubuntu22.04 nvidia-smi```
-  - git and git-lfs and a github account (grand challenge website to clone a repo):
-    - make sure you have access to git by running ```git --version```
+- **Nvidia-container-toolkit:** To verify you can access gpu inside docker by running ```docker run --rm --gpus all nvidia/cuda:12.1.1-runtime-ubuntu22.04 nvidia-smi```
 
 ---
 # 🤖 Baseline Inference
 
-The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is used to build and test the baseline models for each task. Once the models are ready, you can follow the following steps to perform inference using docker. Below here is a structure of the ```template-docker``` branch. We support three separate tasks: **Task1**, **Task2**, and **Task3**. For each task, you should have a separate dedicated model under its folder.
+Below is a structure of the ```template-docker``` branch. We support three separate tasks: **Task1**, **Task2**, and **Task3**. For each task, you should have a separate dedicated model under its folder.
 
 1. **Repository Structure**
 
@@ -173,7 +132,7 @@ The [main](https://github.com/BioMedIA-MBZUAI/HECKTOR2025/tree/main) branch is u
 
 # <img src="assets/logos/restrictions.svg" width="24" alt="⚠️"/> Grand Challenge Restrictions & Submission Tips
 
-This section is to guide the participants to the [submission tips](https://grand-challenge.org/documentatimaking-a-challenge-submission/#submission-tips) documentation. This includes important information like:
+This section is to guide participants through the [submission tips](https://grand-challenge.org/documentation/making-a-challenge-submission/#submission-tips) documentation. This includes important information like:
 
 1. **Algorithm Submission**
    - You do not need to create a new algorithm for each submission.
@@ -185,7 +144,7 @@ This section is to guide the participants to the [submission tips](https://grand
 3. **Computational & Memory Constraints**  
     - **GPU**: Your code will run on NVIDIA T4 Tensor Core GPU with 16 GB VRAM. Please design the model so that it should be able to execute on this GPU.  
     - **Memory Limit**: Peak RAM usage must stay under **16 GB**.
-    - **Docker size**:  The container you upload for your algorithm cannot exceed 10GB.
+    - **Docker Size**:  The container you upload for your algorithm cannot exceed 10GB.
 
 4. **Filesystem Write Permissions**  
    All writes (models, logs, outputs) **must** go under `/tmp/`. Writing elsewhere on the filesystem will be ignored or blocked. 
@@ -208,15 +167,12 @@ This section is to guide the participants to the [submission tips](https://grand
    | Error Text                          | Likely Cause                                    | Fix                                 |
    |-------------------------------------|-------------------------------------------------|-------------------------------------|
    | `Model file not found`              | Missing weights in `TaskX/resources/`           | Add your `.pth`/`.onnx` files       |
-   | `ModuleNotFoundError: …`           | Dependency not declared                         | Update `requirements.txt` & rebuild |
+   | `ModuleNotFoundError: …`            | Dependency not declared                         | Update `requirements.txt` & rebuild |
    | `Permission denied: '/some/path'`   | Writing outside `/tmp/`                         | Redirect writes to `/tmp/`          |
    | `Killed` or `OOM`                   | Exceeded memory limit                           | Reduce batch size or model footprint|
-   | `Timeout`                           | Exceeded 15-minute runtime                      | Optimize preprocessing/inference    |
+   | `Timeout`                           | Exceeded the limited runt                       | Optimize preprocessing/inference    |
 
 ---
-
-
-
 
 
 # 💾 Saving and Uploading Containers
