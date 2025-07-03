@@ -220,4 +220,4 @@ This section is to guide participants through the [submission tips](https://gran
 
 ---
 # 🎉 Good luck with your submission!
-* **Support**: Post questions on the [Challenge Forum](https://grand-challenge.org/forums/forum/head-and-neck-tumor-lesion-segmentation-diagnosis-and-prognosis-767/) under **Forum** tab or send an email at ```hecktor.challenge@gmail.com```.
+If you need support, post questions on the [Challenge Forum](https://grand-challenge.org/forums/forum/head-and-neck-tumor-lesion-segmentation-diagnosis-and-prognosis-767/) or send an email at ```hecktor.challenge@gmail.com```.
