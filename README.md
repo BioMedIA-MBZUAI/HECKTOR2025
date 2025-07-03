@@ -136,7 +136,7 @@ This section is to guide participants through the [submission tips](https://gran
 
 1. **Algorithm Submission**
    - You do not need to create a new algorithm for each submission.
-   - If you update your algorithm, don't forget to make a new submission to the challenge with it, this will not happen automatically. For more guidelines on how to creat a submission on Grand-Challenge and upload your algorithm, plese follow the intructions [here](submission-guidelines.md)
+   - If you update your algorithm, don't forget to make a new submission to the challenge with it, this will not happen automatically. For more guidelines on how to creat a submission on Grand-Challenge and upload your algorithm, please follow the intructions [here](submission-guidelines.md)
 
 2. **Offline Execution Only**  
   Your container **must not** attempt any network access (HTTP, SSH, DNS, etc.). Any outgoing connection will cause automatic disqualification.
@@ -170,7 +170,7 @@ This section is to guide participants through the [submission tips](https://gran
    | `ModuleNotFoundError: …`            | Dependency not declared                         | Update `requirements.txt` & rebuild |
    | `Permission denied: '/some/path'`   | Writing outside `/tmp/`                         | Redirect writes to `/tmp/`          |
    | `Killed` or `OOM`                   | Exceeded memory limit                           | Reduce batch size or model footprint|
-   | `Timeout`                           | Exceeded the limited runt                       | Optimize preprocessing/inference    |
+   | `Timeout`                           | Exceeded the limited runtime                       | Optimize preprocessing/inference    |
 
 ---
 
