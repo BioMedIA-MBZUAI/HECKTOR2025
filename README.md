@@ -170,7 +170,7 @@ This section is to guide participants through the [submission tips](https://gran
    | `ModuleNotFoundError: …`            | Dependency not declared                         | Update `requirements.txt` & rebuild |
    | `Permission denied: '/some/path'`   | Writing outside `/tmp/`                         | Redirect writes to `/tmp/`          |
    | `Killed` or `OOM`                   | Exceeded memory limit                           | Reduce batch size or model footprint|
-   | `Timeout`                           | Exceeded the limited runtime                       | Optimize preprocessing/inference    |
+   | `Timeout`                           | Exceeded runtime limit | Optimize preprocessing/inference    |
 
 ---
 
