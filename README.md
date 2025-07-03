@@ -51,8 +51,8 @@ Following the success of the first editions of the HECKTOR challenge from 2020 t
 # 📑 Table of Contents
 
 1. [Getting the Data](#-getting-the-data)
-2. [Task Folders & Structure](#-task-folders--structure)
-3. [Environment Setup](#-environment-setup)
+2. [Task Folders & Structure](#task-folders--structure)
+3. [Environment Setup](#environment-setup)
 4. [Training Your Model](#-training-your-model)  
 5. [Inference & Evaluation](#-inference--evaluation)  
 6. [Next Steps & Tips](#-next-steps--tips)  
