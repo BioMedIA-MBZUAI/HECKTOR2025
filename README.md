@@ -13,13 +13,11 @@ Welcome to the **HECKTOR 2025 Challenge** repository! This repository contains i
 
 # How can this Repo help?
 
-```text
 1. Understand what the challenge is about  
 2. Set up your development environment  
 3. Train models on our provided data  
 4. Test and evaluate your results  
 5. Explore ideas for improving performance 
-```
 
 ---
 # 🚀 About the HECKTOR'25 Challenge
@@ -31,9 +29,9 @@ Following the success of the first editions of the HECKTOR challenge from 2020 t
   - **Task 1:** The automatic detection and segmentation of Head and Neck (H&N) primary tumors and lymph nodes in FDG-PET/CT images.
   - **Task 2:** The prediction of Recurrence-Free Survival (RFS) from the FDG-PET/CT images, available clinical information, and radiotherapy planning dose maps.
   - **Task 3:** The diagnosis of HPV status from the FDG-PET/CT images and available clinical information.
-- **Validation Submission Deadline:** 10th July to 14th August
+- **Validation Submission Deadline:** 10th July to 14th August 2025
 - **Testing Submission Deadline:** 15th August to 1st September 2025  
-- **Website & Rules:** [Participation Policies](https://hecktor25.grand-challenge.org/participation-policies/)
+- **Website & Rules:** [Participation policies](https://hecktor25.grand-challenge.org/participation-policies/)
 
 
 ---
@@ -54,7 +52,7 @@ Following the success of the first editions of the HECKTOR challenge from 2020 t
 
 1. [Getting the Data](#-getting-the-data)  
 2. [Task Folders & Structure](#-task-folders--structure)  
-3. [Environment Setup & Baseline](#-environment-setup--baseline)  
+3. [Environment Setup](#-environment-setup--baseline)  
 4. [Training Your Model](#-training-your-model)  
 5. [Inference & Evaluation](#-inference--evaluation)  
 6. [Next Steps & Tips](#-next-steps--tips)  
@@ -110,14 +108,12 @@ hecktor2025_training/
     - __CTPlanning.nii.gz — CT planning scan
     - __RTDOSE.nii.gz — RT dose map
 - **Clinical Information:**
-  - Provided in HECKTOR_2025_Training_Task_#.csv, includes:
+  Provided in HECKTOR_2025_Training_Task_#.csv, includes:
   - Center, gender, age, tobacco and alcohol use, performance status, treatment (radiotherapy only or chemoradiotherapy), M-stage (metastasis)
   - Relapse indicator and RFS value (used as the target for Task 2)
   - HPV status (used as the target for Task 3)
-  - Some entries may contain missing data, but the 2025 edition includes significant updates.
 
 If you require any further details about the dataset, please visit the [Dataset](https://hecktor25.grand-challenge.org/dataset/#dataset-structure) section on the challenge website. 
-
 
 
 ---
@@ -142,8 +138,8 @@ Each task folder is self-contained and contains only the scripts needed for that
     └── task3_inference.py        # Inference entry-point for Task 3
 ```
 - **Task1/**
-  - **scripts/train.py**: Train a segmentation model for Task 1 (Available models: unet3d, segresnet, unetr, swinunetr)
-  - **scripts/inference.py**: Evaluation script for Task 1 segmentation model.
+  - **scripts/train.py**: Train a segmentation model for Task 1.
+  - **scripts/inference.py**: Inference script for Task 1 segmentation model.
   <!-- - **Usage**:
     ```bash
     # Perform Training
@@ -153,7 +149,7 @@ Each task folder is self-contained and contains only the scripts needed for that
 - **Task2/**
 
   - **task2\_prognosis.py**: end-to-end training and validation script for Task 2’s prognosis model.
-  - **task2\_inference.py**: Inference script for HECKTOR survival prediction using ensemble model.
+  - **task2\_inference.py**: Inference script for survival prediction using ensemble model.
   <!-- - **Usage**: 
     ```bash
     python inference_script.py \
@@ -165,7 +161,7 @@ Each task folder is self-contained and contains only the scripts needed for that
 - **Task3/**
 
   - **task3\_classification.py**: end-to-end training and validation script for Task 3’s classification model.
-  - **task3\_inference.py**: loads saved weights and runs inference on a single sample or batch.
+  - **task3\_inference.py**: Inference script for HPV status prediction used a trained model.
   <!-- - **Usage**: 
     ```bash
     python inference_classification.py \
@@ -177,15 +173,12 @@ Each task folder is self-contained and contains only the scripts needed for that
     --ehr_file /input/ehr.json
   ``` -->
 
-
-Each script is ready to run out of the box. Just point it at your data directory and checkpoint folder to get started experimenting on that task.
-
 ---
 > **Baseline Notice:**
-> This structure and the sample scripts are provided as a **baseline** to help you get started. You are **not required** to follow this exact layout or use the provided models. Feel free to reorganize files, swap in your own approaches, or design your own workflow that best suits your development style.
+> This structure and the sample scripts are provided as a **baseline** to help you get started. You are **not required** to follow this exact layout or use the provided models. 
 
 ---
-# ⚙️ Environment Setup & Baseline
+# ⚙️ Environment Setup
 
 1. **Checkout main branch**
 
@@ -255,19 +248,11 @@ To run inference on validation data, use the below command accordingly for each 
 #### **Task 1**:
   ```bash
   cd Task1/
-  # Inference on entire directory
   python scripts/inference.py \
       --model_path best_model.pth \
-      --input_dir /path/to/test/images \
-      --output_dir /path/to/predictions
-
-  # Inference on single case
-  python scripts/inference.py \
-      --model_path best_model.pth \
-      --single_case \
       --ct_path /path/to/ct.nii.gz \
       --pet_path /path/to/pet.nii.gz \
-      --output_dir /path/to/output
+      --output_path /path/to/output
   ```
 
 #### **Task 2**:
@@ -296,7 +281,7 @@ To run inference on validation data, use the below command accordingly for each 
 # 🌟 Next Steps & Tips
 
 * **Data Augmentation:** Explore and try more aggressive transformations on the dataset.
-* **Model Architecture:** Swap in a stronger backbone (ResNet → Swin Transformer).
+* **Model Architecture:** Swap in a stronger backbone.
 * **Hyperparameter Tuning:** Adjust learning rates, optimizers, schedulers.
 * **Ensembling:** Combine outputs from multiple checkpoints.
 * **Semi-Supervised Learning:** Leverage unlabelled test data for pseudo-labeling.

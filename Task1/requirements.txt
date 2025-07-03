@@ -1,0 +1,54 @@
+# Core ML libraries
+torch>=2.6.0
+numpy>=1.26.0
+scipy>=1.15.0
+
+# Medical imaging and segmentation
+monai>=1.5.0
+nibabel
+SimpleITK>=2.5.0
+scikit-image>=0.25.0
+
+# Neural network utilities
+timm>=1.0.0
+nnunetv2>=2.6.0
+
+# Data handling and processing
+pandas>=2.2.0
+h5py>=3.14.0
+pyarrow>=19.0.0
+
+# Image processing
+imageio>=2.37.0
+tifffile>=2025.6.0
+pillow>=11.0.0
+
+#Prognosis
+lifelines
+
+# Visualization
+matplotlib>=3.10.0
+seaborn>=0.13.0
+
+# Utilities
+tqdm>=4.67.0
+pyyaml>=6.0.0
+fsspec>=2025.5.0
+joblib>=1.5.0
+
+# Development and training
+scikit-learn>=1.7.0
+psutil>=7.0.0
+
+# Optional: Jupyter support (for notebooks)
+jupyter>=1.1.0
+ipykernel>=6.29.0
+ipywidgets>=8.1.0
+
+# Configuration management
+yacs>=0.1.8
+
+# CUDA support (if using GPU)
+# Note: Install appropriate PyTorch CUDA version for your system
+# torch with CUDA support should be installed via:
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
