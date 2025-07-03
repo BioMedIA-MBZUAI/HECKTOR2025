@@ -23,6 +23,9 @@ imageio>=2.37.0
 tifffile>=2025.6.0
 pillow>=11.0.0
 
+#Prognosis
+lifelines
+
 # Visualization
 matplotlib>=3.10.0
 seaborn>=0.13.0

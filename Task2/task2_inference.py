@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Inference script for HECKTOR survival prediction using ensemble model.
-Usage: python inference_script.py --csv test_data.csv --images_dir ./test_images --ensemble ensemble_model.pt --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl 
+Usage: python inference_script.py --csv test_data.csv --input_path ./test_images --ensemble ensemble_model.pt --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl 
 """
 
 import argparse
@@ -209,7 +209,7 @@ class InferenceModel:
         return final_predictions, all_fold_predictions
 
 
-def load_and_preprocess_test_data(csv_path, images_dir, clinical_preprocessors_path=None):
+def load_and_preprocess_test_data(csv_path, input_path, clinical_preprocessors_path=None):
     """
     Load and preprocess test data following the exact same pipeline as training.
     """
@@ -231,8 +231,8 @@ def load_and_preprocess_test_data(csv_path, images_dir, clinical_preprocessors_p
         patient_id = row["PatientID"]
         
         try:
-            ct_path = find_image_path(patient_id, "CT", [images_dir])
-            pet_path = find_image_path(patient_id, "PT", [images_dir])
+            ct_path = find_image_path(patient_id, "CT", [input_path])
+            pet_path = find_image_path(patient_id, "PT", [input_path])
             
             transformed_data = image_transforms({"ct": ct_path, "pet": pet_path})
             combined_image = torch.cat([transformed_data["ct"], transformed_data["pet"]], dim=0)
@@ -276,7 +276,7 @@ def load_and_preprocess_test_data(csv_path, images_dir, clinical_preprocessors_p
     
     return test_dataset_cache
 
-def run_inference(csv_path, images_dir, ensemble_path,
+def run_inference(csv_path, input_path, ensemble_path,
                  clinical_preprocessors_path=None, batch_size=4):
     """
     Complete inference pipeline.
@@ -286,7 +286,7 @@ def run_inference(csv_path, images_dir, ensemble_path,
     # Load and preprocess test data
     test_data = load_and_preprocess_test_data(
         csv_path=csv_path,
-        images_dir=images_dir,
+        input_path=input_path,
         clinical_preprocessors_path=clinical_preprocessors_path
     )
     
@@ -336,7 +336,7 @@ def main():
     
     parser.add_argument("--csv", required=True,
                        help="Path to test CSV file with patient data")
-    parser.add_argument("--images_dir", required=True,
+    parser.add_argument("--input_path", required=True,
                        help="Directory containing test images (CT and PET)")
     parser.add_argument("--ensemble", required=True,
                        help="Path to ensemble model file (.pt)")
@@ -351,8 +351,8 @@ def main():
     if not os.path.exists(args.csv):
         raise FileNotFoundError(f"CSV file not found: {args.csv}")
     
-    if not os.path.exists(args.images_dir):
-        raise FileNotFoundError(f"Images directory not found: {args.images_dir}")
+    if not os.path.exists(args.input_path):
+        raise FileNotFoundError(f"Images directory not found: {args.input_path}")
     
     if not os.path.exists(args.ensemble):
         raise FileNotFoundError(f"Ensemble model not found: {args.ensemble}")
@@ -362,7 +362,7 @@ def main():
     
     c_index = run_inference(
             csv_path=args.csv,
-            images_dir=args.images_dir,
+            input_path=args.input_path,
             ensemble_path=args.ensemble,
             clinical_preprocessors_path=args.clinical_preprocessors,
             batch_size=args.batch_size

@@ -12,7 +12,6 @@ Welcome to the **HECKTOR 2025 Challenge** repository! This repository contains i
 ---
 
 # How can this Repo help?
-This branch is the first thing you see when you click our challenge Github link. It's totally perfect if you’re new to the challenge or unfamiliar with our setup. You’ll find everything here to:
 
 ```text
 1. Understand what the challenge is about  
@@ -32,6 +31,7 @@ Following the success of the first editions of the HECKTOR challenge from 2020 t
   - **Task 1:** The automatic detection and segmentation of Head and Neck (H&N) primary tumors and lymph nodes in FDG-PET/CT images.
   - **Task 2:** The prediction of Recurrence-Free Survival (RFS) from the FDG-PET/CT images, available clinical information, and radiotherapy planning dose maps.
   - **Task 3:** The diagnosis of HPV status from the FDG-PET/CT images and available clinical information.
+- **Validation Submission Deadline:**: 10th July to 14th August
 - **Testing Submission Deadline:** 15th August to 1st September 2025  
 - **Website & Rules:** [Participation Policies](https://hecktor25.grand-challenge.org/participation-policies/)
 
@@ -205,9 +205,6 @@ Each script is ready to run out of the box. Just point it at your data directory
    ```bash
    pip install -r requirements.txt
    ```
-4. **Baseline Models**
-
-    - Baseline models are available in [Baseline Model Weights](https://mbzuaiac-my.sharepoint.com/shared?id=%2Fpersonal%2Fsalma%5Fhassan%5Fmbzuai%5Fac%5Fae%2FDocuments%2FHECKTOR%202025%20Baselines&listurl=%2Fpersonal%2Fsalma%5Fhassan%5Fmbzuai%5Fac%5Fae%2FDocuments). To use them, download them and save them under the `TaskX/checkpoints` folder.
 
 ---
 
@@ -260,13 +257,13 @@ To run inference on validation data, use the below command accordingly for each 
   cd Task1/
   # Inference on entire directory
   python scripts/inference.py \
-      --model_path experiments/unet3d/checkpoints/best_model.pth \
+      --model_path best_model.pth \
       --input_dir /path/to/test/images \
       --output_dir /path/to/predictions
 
   # Inference on single case
   python scripts/inference.py \
-      --model_path experiments/unet3d/checkpoints/best_model.pth \
+      --model_path best_model.pth \
       --single_case \
       --ct_path /path/to/ct.nii.gz \
       --pet_path /path/to/pet.nii.gz \
@@ -276,24 +273,21 @@ To run inference on validation data, use the below command accordingly for each 
 #### **Task 2**:
   ```bash
   cd Task2/
-  python python inference_script.py \
+  python python task2_inference.py \
     --csv test_data.csv \
-    --images_dir ./test_images \
+    --input_path ./test_images \
     --ensemble ensemble_model.pt \
     --clinical_preprocessors  hecktor_cache_clinical_preprocessors.pkl \
-    --model-path checkpoint/best.pth \
-    --input-path ../data/test/sample_001.png \
-    --output-path results/sample_001_out.json
   ```
 
 #### **Task 3**:
   ```bash
   python task3_inference.py \
   --input_path /input \
-  --output_path /output \
+  --output_path /output/sample_001_out.json \
   --scaler_file resources/scaler.joblib \
   --ohe_file resources/ohe.joblib \
-  --checkpoint resources/best_model.pt \
+  --checkpoint best_model.pt \
   --ehr_file /input/ehr.json
 ```
 
