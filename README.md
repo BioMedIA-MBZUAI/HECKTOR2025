@@ -1,7 +1,7 @@
 # HECKTOR2025 - Challenge
 
 <p align="center">
-  <img src="/doc/images/HECKTOR-main.jpeg">
+  <img src="HECKTOR-main.jpeg">
 </p>
 
 Welcome to the **HECKTOR 2025 Challenge** repository! This repository contains instructions and examples for creating a baseline and a valid docker for [HECKTOR 2025 Challenge](https://hecktor25.grand-challenge.org/hecktor25/). It will also help you with how you can submit your designed model to the [Grand Challenge](https://hecktor25.grand-challenge.org/hecktor25/) for evaluation. Here you’ll find everything you need to get started quickly: from understanding the challenge, to setting up your environment, training your first model, and evaluating your results. So this reporsitory has **two primary branches** 🌲:
