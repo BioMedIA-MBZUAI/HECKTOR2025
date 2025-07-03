@@ -31,7 +31,7 @@ Following the success of the first editions of the HECKTOR challenge from 2020 t
   - **Task 1:** The automatic detection and segmentation of Head and Neck (H&N) primary tumors and lymph nodes in FDG-PET/CT images.
   - **Task 2:** The prediction of Recurrence-Free Survival (RFS) from the FDG-PET/CT images, available clinical information, and radiotherapy planning dose maps.
   - **Task 3:** The diagnosis of HPV status from the FDG-PET/CT images and available clinical information.
-- **Validation Submission Deadline:**: 10th July to 14th August
+- **Validation Submission Deadline:** 10th July to 14th August
 - **Testing Submission Deadline:** 15th August to 1st September 2025  
 - **Website & Rules:** [Participation Policies](https://hecktor25.grand-challenge.org/participation-policies/)
 
