@@ -19,11 +19,10 @@ This repository contains the submission template and instructions for the [Grand
 ---
 # 📑 Table of Contents
 
-* 🛠️ [Installation](#installation)
-* 🤖 [Baseline Inference](#baseline-inference)
-* <img src="assets/logos/restrictions.svg" width="24" alt="⚠️"/> [Restrictions and Submission Tips](#restrictions-and-submission-tips)
-* 💾 [Saving and Uploading Containers](#saving-and-uploading-containers)
-* 🔔 [Reminders, Error Handling & Deadlines](#reminders-error-handling--deadlines)
+* 🛠️ [Installation](#-installation)
+* 🤖 [Baseline Inference](#-baseline-inference)
+* <img src="assets/logos/restrictions.svg" width="24" alt="⚠️"/> [Restrictions and Submission Tips](#-restrictions-and-submission-tips)
+* 💾 [Saving and Uploading Containers](#-saving-and-uploading-containers)
 
 ---
 # 🛠️ Installation
@@ -220,12 +219,5 @@ This section is to guide participants through the [submission tips](https://gran
    * Select `my_submission.tar` and submit.
 
 ---
-# 🔔 Reminders, Error Handling & Deadlines
-
-* **Validation Submission deadline**: August 10, 2025, 23:59 UTC.
-* **Test Submission deadline**: July 31, 2025, 23:59 UTC.
-* **Logging**: Capture logs by adding `-e DEBUG=1` or redirecting stdout to `/tmp/output/log.txt`.
-* **Support**: Post questions on the [Challenge Forum](https://grand-challenge.org/forums/forum/head-and-neck-tumor-lesion-segmentation-diagnosis-and-prognosis-767/) under **Forum** tab Or can send an email at ```[hecktor.challenge@gmail.com](hecktor.challenge@gmail.com)```.
-
----
 # 🎉 Good luck with your submission!
+* **Support**: Post questions on the [Challenge Forum](https://grand-challenge.org/forums/forum/head-and-neck-tumor-lesion-segmentation-diagnosis-and-prognosis-767/) under **Forum** tab or send an email at ```hecktor.challenge@gmail.com```.
