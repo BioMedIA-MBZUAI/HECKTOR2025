@@ -267,6 +267,7 @@ To run inference on validation data, use the below command accordingly for each 
 
 #### **Task 3**:
   ```bash
+  cd Task3/
   python task3_inference.py \
   --input_path /input \
   --output_path /output/sample_001_out.json \
