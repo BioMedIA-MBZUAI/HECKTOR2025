@@ -58,21 +58,13 @@ Training options:
 
 ### 2. Inference
 
-Run inference on new HECKTOR 2025 Task 1 data:
+Run inference on HECKTOR 2025 Task 1 data for a single case:
 ```bash
-# Process entire directory
 python scripts/inference.py \
     --model_path experiments/unet3d/checkpoints/best_model.pth \
-    --input_dir /path/to/test/images \
-    --output_dir /path/to/predictions
-
-# Process single case
-python scripts/inference.py \
-    --model_path experiments/unet3d/checkpoints/best_model.pth \
-    --single_case \
     --ct_path /path/to/ct.nii.gz \
     --pet_path /path/to/pet.nii.gz \
-    --output_dir /path/to/output
+    --output_path /path/to/output
 ```
 
 ### 3. Evaluation
@@ -164,10 +156,8 @@ class UNet3DConfig(BaseConfig):
 The framework computes the following metrics for HECKTOR 2025 Task 1 evaluation:
 
 - **Dice Score**: Primary segmentation metric for tumor and lymph node regions
-- **Hausdorff Distance**: Surface distance metric for boundary accuracy
 - **IoU**: Intersection over Union for overlap assessment
 - **Sensitivity/Specificity**: Clinical metrics for detection performance
-- **Average Surface Distance**: Additional boundary accuracy metric
 
 ## Output Structure
 
